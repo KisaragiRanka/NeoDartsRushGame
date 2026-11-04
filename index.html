@@ -99,15 +99,21 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-1">
-            <button onclick="switchGameMode('BULL_RUSH')" id="tab-BULL_RUSH" class="mode-tab flex flex-col items-center justify-center py-1.5 rounded-lg font-bold text-[10px] sm:text-xs transition-all border border-cyan-400 bg-cyan-500/20 text-white">
-                <i class="fa-solid fa-bolt text-amber-400 mb-0.5 text-xs"></i> 60s RUSH
+        <div class="grid grid-cols-5 gap-1">
+            <button onclick="switchGameMode('BULL_RUSH')" id="tab-BULL_RUSH" class="mode-tab flex flex-col items-center justify-center py-1.5 rounded-lg font-bold text-[8px] sm:text-[10px] transition-all border border-cyan-400 bg-cyan-500/20 text-white">
+                <i class="fa-solid fa-bolt text-amber-400 mb-0.5 text-[10px]"></i> RUSH
             </button>
-            <button onclick="switchGameMode('COUNT_UP')" id="tab-COUNT_UP" class="mode-tab flex flex-col items-center justify-center py-1.5 rounded-lg font-bold text-[10px] sm:text-xs transition-all border border-slate-800 bg-slate-900/80 text-slate-400">
-                <i class="fa-solid fa-chart-line text-cyan-400 mb-0.5 text-xs"></i> COUNT-UP
+            <button onclick="switchGameMode('COUNT_UP')" id="tab-COUNT_UP" class="mode-tab flex flex-col items-center justify-center py-1.5 rounded-lg font-bold text-[8px] sm:text-[10px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400">
+                <i class="fa-solid fa-chart-line text-cyan-400 mb-0.5 text-[10px]"></i> C-UP
             </button>
-            <button onclick="switchGameMode('CHECKOUT')" id="tab-CHECKOUT" class="mode-tab flex flex-col items-center justify-center py-1.5 rounded-lg font-bold text-[10px] sm:text-xs transition-all border border-slate-800 bg-slate-900/80 text-slate-400">
-                <i class="fa-solid fa-flag-checkered text-fuchsia-400 mb-0.5 text-xs"></i> ARRANGE (01)
+            <button onclick="switchGameMode('501')" id="tab-501" class="mode-tab flex flex-col items-center justify-center py-1.5 rounded-lg font-bold text-[8px] sm:text-[10px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400">
+                <i class="fa-solid fa-crosshairs text-fuchsia-400 mb-0.5 text-[10px]"></i> 501
+            </button>
+            <button onclick="switchGameMode('701')" id="tab-701" class="mode-tab flex flex-col items-center justify-center py-1.5 rounded-lg font-bold text-[8px] sm:text-[10px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400">
+                <i class="fa-solid fa-crosshairs text-purple-400 mb-0.5 text-[10px]"></i> 701
+            </button>
+            <button onclick="switchGameMode('CHECKOUT')" id="tab-CHECKOUT" class="mode-tab flex flex-col items-center justify-center py-1.5 rounded-lg font-bold text-[8px] sm:text-[10px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400">
+                <i class="fa-solid fa-flag-checkered text-amber-400 mb-0.5 text-[10px]"></i> 道場
             </button>
         </div>
     </header>
@@ -313,7 +319,6 @@
     </div>
 
     <script>
-        // ▼ ゲームを公開した際のURLをここに設定してください（例: Netlify, Vercel, GitHub PagesなどのURL）
         const GAME_PUBLIC_URL = "https://kisaragiranka.github.io/NeoDartsRushGame/"; 
 
         // スタート画面のボタンを押した時の処理
@@ -554,6 +559,18 @@
             return "スコアを0ぴったりに減らそう！";
         }
 
+        function calculateRating(ppr, gameMode) {
+            let rt = 1, fl = 'C', title = 'エンジョイ勢';
+            if (gameMode === 'COUNT_UP') {
+                if(ppr>=105){ fl='SA'; rt=16; title='神の右腕'; } else if(ppr>=85){ fl='AA'; rt=13; title='絶対王者'; } else if(ppr>=65){ fl='A'; rt=10; title='Aフラ達成者'; } else if(ppr>=40){ fl='B'; rt=6; title='マイダーツ購入検討'; }
+            } else if (gameMode === '501' || gameMode === '701') {
+                 // 01 games have different PPD/PPR thresholds generally. Using a simplified PPR (Points Per Round) mapping.
+                 if(ppr>=120){ fl='SA'; rt=16; title='神の右腕'; } else if(ppr>=95){ fl='AA'; rt=13; title='絶対王者'; } else if(ppr>=75){ fl='A'; rt=10; title='Aフラ達成者'; } else if(ppr>=50){ fl='B'; rt=6; title='マイダーツ購入検討'; }
+            }
+            return { rt, fl, title };
+        }
+
+
         /**************************************************************
          * 3. STATE & STORAGE
          **************************************************************/
@@ -686,6 +703,7 @@
 
             if (GameState.mode === 'BULL_RUSH') handleBullRushHit(hit, x, y, isSecret);
             else if (GameState.mode === 'COUNT_UP') handleCountUpHit(hit, x, y, isSecret);
+            else if (GameState.mode === '501' || GameState.mode === '701') handle01Hit(hit, x, y, isSecret);
             else if (GameState.mode === 'CHECKOUT') handleCheckoutHit(hit, x, y, isSecret);
             updateHUD();
         }
@@ -701,7 +719,7 @@
                     GameState.secretStep = 0; GameState.secretTriggeredThisRound = false;
                     GameState.roundHits = []; GameState.dartIndex = 0; GameState.landedDarts = [];
                     if (GameState.mode === 'BULL_RUSH') GameState.bonusNumber = BOARD_NUMBERS[Math.floor(Math.random()*BOARD_NUMBERS.length)];
-                    else if (GameState.mode === 'COUNT_UP') {
+                    else if (GameState.mode === 'COUNT_UP' || GameState.mode === '501' || GameState.mode === '701') {
                         if (GameState.round >= GameState.maxRounds && !hadSecret) { finishGame(); return; }
                         if (GameState.round < GameState.maxRounds) GameState.round++;
                     }
@@ -751,6 +769,67 @@
                 recordDartInRound({ ...hit, points: pts });
             }
         }
+
+        function handle01Hit(hit, x, y, isSecret) {
+            if (hit.isOutBoard) {
+                if(!isSecret){ SoundEngine.playOutBoard(); spawnFloatingText(x,y,'OUT(0)','#94a3b8'); }
+                GameState.roundHits.push({...hit, points:0}); GameState.dartIndex++;
+                if(GameState.dartIndex>=3) resetCheckoutRound();
+                return;
+            }
+            
+            const pts = hit.isBull ? (GameState.outRule === 'DOUBLE' ? (hit.isInnerBull?50:25) : 50) : hit.points;
+            if(hit.isBull) { GameState.bullCount++; PersistentStats.totalBulls++; }
+            GameState.totalPointsEarned += pts;
+
+            const newRem = GameState.checkoutRemaining - pts;
+            
+            let valid = true;
+            if(GameState.outRule==='MASTER') valid = (hit.multiplier===2 || hit.multiplier===3 || hit.isBull);
+            if(GameState.outRule==='DOUBLE') valid = ((hit.multiplier===2 && !hit.isBull) || hit.isInnerBull);
+            const leavesOne = (newRem===1 && (GameState.outRule==='MASTER'||GameState.outRule==='DOUBLE'));
+
+            if (newRem < 0 || leavesOne || (newRem===0 && !valid)) {
+                SoundEngine.playBust(); triggerScreenShake(); spawnFloatingText(x,y,'BUST!','#ef4444',20);
+                triggerAwardBanner('BUST!!', '残りスコアリセット');
+                GameState.checkoutRemaining = GameState.checkoutStartScore; GameState.roundHits = []; GameState.dartIndex = 0;
+                setTimeout(() => { GameState.landedDarts = []; updateHUD(); }, 650);
+                return;
+            }
+
+            GameState.checkoutRemaining = newRem;
+            if (newRem === 0) {
+                GameState.checkoutClearedCount++; PersistentStats.checkoutClears++; PersistentStats.save();
+                SoundEngine.playAward(); triggerScreenShake(); spawnFloatingText(x,y,`CLEAR!`,'#ffd700',20);
+                GameState.awardsEarned.push(`GAME SHOT`);
+                triggerAwardBanner(`GAME SHOT!`, `NICE ${GameState.outRule} OUT!`);
+                
+                GameState.secretMultiplier = GameState.pendingSecretMultiplier>1 ? GameState.pendingSecretMultiplier : 1;
+                GameState.pendingSecretMultiplier = 1; GameState.secretTriggeredThisRound = false;
+
+                setTimeout(() => { finishGame(); }, 1300);
+                return;
+            }
+
+            if (hit.isBull) SoundEngine.playBull(hit.isInnerBull); else SoundEngine.playSegmentHit(hit.multiplier, hit.base);
+            spawnFloatingText(x, y, `-${pts}`, '#00f3ff');
+            
+            GameState.roundHits.push({...hit, points:pts}); GameState.dartIndex++;
+            if(GameState.dartIndex>=3) {
+                 evaluateRoundAwards(GameState.roundHits);
+                 setTimeout(() => {
+                    if (GameState.secretTriggeredThisRound) { GameState.secretMultiplier = GameState.pendingSecretMultiplier; GameState.pendingSecretMultiplier = 1; }
+                    else { GameState.secretMultiplier = 1; GameState.pendingSecretMultiplier = 1; }
+                    GameState.secretStep = 0; GameState.secretTriggeredThisRound = false;
+                    GameState.checkoutStartScore = GameState.checkoutRemaining; // update start score for next round BUST logic
+                    GameState.roundHits = []; GameState.dartIndex = 0; GameState.landedDarts = [];
+                    if (GameState.round >= GameState.maxRounds) { finishGame(); return; }
+                    if (GameState.round < GameState.maxRounds) GameState.round++;
+                    updateHUD();
+                }, 680);
+            }
+        }
+
 
         function handleCheckoutHit(hit, x, y, isSecret) {
             if (hit.isOutBoard) {
@@ -1035,7 +1114,7 @@
         function formatScore(val) { return val >= 100000 ? val.toExponential(2).replace('e+', 'e') : val; }
 
         function updateHUD() {
-            ['BULL_RUSH','COUNT_UP','CHECKOUT'].forEach(m => {
+            ['BULL_RUSH','COUNT_UP','501','701','CHECKOUT'].forEach(m => {
                 const btn = document.getElementById(`tab-${m}`);
                 if (m === GameState.mode) { btn.classList.add('border-cyan-400','bg-cyan-500/20','text-white'); btn.classList.remove('border-slate-800','bg-slate-900/80','text-slate-400'); }
                 else { btn.classList.remove('border-cyan-400','bg-cyan-500/20','text-white'); btn.classList.add('border-slate-800','bg-slate-900/80','text-slate-400'); }
@@ -1053,15 +1132,24 @@
             } else if (GameState.mode === 'COUNT_UP') {
                 document.getElementById('hudModeTitle').textContent = '🎯 COUNT-UP';
                 let ppr = GameState.totalDartsThrown>0 ? (GameState.totalPointsEarned/GameState.totalDartsThrown)*3 : 0;
-                let rt = 1, fl = 'C';
-                if(ppr>=105) fl='SA'; else if(ppr>=85) fl='AA'; else if(ppr>=65) fl='A'; else if(ppr>=52) fl='BB'; else if(ppr>=40) fl='B'; else if(ppr>=28) fl='CC';
-                document.getElementById('hudSubStatus').textContent = `FLIGHT: ${fl}${secB}`;
+                let ratingInfo = calculateRating(ppr, GameState.mode);
+                document.getElementById('hudSubStatus').textContent = `FLIGHT: ${ratingInfo.fl}${secB}`;
                 document.getElementById('scoreLabel').textContent = 'SCORE'; document.getElementById('mainScoreDisplay').textContent = formatScore(GameState.score);
                 document.getElementById('progressLabel').textContent = 'ROUND'; document.getElementById('progressDisplay').innerHTML = `${GameState.round}<span class="text-base text-slate-400">/${GameState.maxRounds}</span>`;
                 document.getElementById('hintTitle').textContent = 'SOFT DARTS'; document.getElementById('hintContent').textContent = 'S-BULL / D-BULL ともに50点！';
                 document.getElementById('btnOutRuleToggle').classList.add('hidden');
+            } else if (GameState.mode === '501' || GameState.mode === '701') {
+                document.getElementById('hudModeTitle').textContent = `🎯 ${GameState.mode}`;
+                let ppr = GameState.totalDartsThrown>0 ? (GameState.totalPointsEarned/GameState.totalDartsThrown)*3 : 0;
+                let ratingInfo = calculateRating(ppr, GameState.mode);
+                document.getElementById('hudSubStatus').textContent = `FLIGHT: ${ratingInfo.fl}${secB}`;
+                document.getElementById('scoreLabel').textContent = 'REMAINING'; document.getElementById('mainScoreDisplay').textContent = formatScore(GameState.checkoutRemaining);
+                document.getElementById('progressLabel').textContent = 'ROUND'; document.getElementById('progressDisplay').innerHTML = `${GameState.round}<span class="text-base text-slate-400">/${GameState.maxRounds}</span>`;
+                document.getElementById('btnOutRuleToggle').classList.remove('hidden'); document.getElementById('btnOutRuleToggle').textContent = GameState.outRule;
+                document.getElementById('hintTitle').textContent = `${GameState.outRule} HINT`;
+                document.getElementById('hintContent').textContent = getDynamicCheckoutHint(GameState.checkoutRemaining, GameState.outRule, GameState.checkoutStartScore);
             } else if (GameState.mode === 'CHECKOUT') {
-                document.getElementById('hudModeTitle').textContent = '⚡ ARRANGE (01)';
+                document.getElementById('hudModeTitle').textContent = '⚡ ARRANGE DOJO';
                 document.getElementById('hudSubStatus').textContent = `${GameState.outRule} OUT${secB}`;
                 document.getElementById('scoreLabel').textContent = 'REMAINING'; document.getElementById('mainScoreDisplay').textContent = formatScore(GameState.checkoutRemaining);
                 document.getElementById('progressLabel').textContent = 'STAGE'; document.getElementById('progressDisplay').innerHTML = `${GameState.checkoutStage}<span class="text-base text-slate-400">/5</span>`;
@@ -1121,7 +1209,18 @@
             GameState.secretStep=0; GameState.secretMultiplier=1; GameState.pendingSecretMultiplier=1; GameState.secretTriggeredThisRound=false; GameState.lockedOutNumber=null;
             GameState.flyingDart=null; GameState.landedDarts=[]; GameState.timingPhase='HORIZONTAL';
             GameState.crosshair.baseX = boardCenter.x; GameState.crosshair.baseY = boardCenter.y;
-            if(GameState.mode==='CHECKOUT') loadNextCheckoutPuzzle(); else updateHUD();
+            if(GameState.mode==='CHECKOUT') {
+                 loadNextCheckoutPuzzle();
+            } else if (GameState.mode === '501') {
+                 GameState.checkoutStartScore = GameState.checkoutRemaining = 501; GameState.maxRounds = 15;
+                 updateHUD();
+            } else if (GameState.mode === '701') {
+                 GameState.checkoutStartScore = GameState.checkoutRemaining = 701; GameState.maxRounds = 15;
+                 updateHUD();
+            } else {
+                 GameState.maxRounds = 8;
+                 updateHUD();
+            }
         }
 
         function finishGame() {
@@ -1133,13 +1232,27 @@
 
         function showResultModal() {
             let ppr = GameState.totalDartsThrown>0 ? (GameState.totalPointsEarned/GameState.totalDartsThrown)*3 : 0;
-            let rt = 1, fl = 'C', t='エンジョイ勢';
-            if(ppr>=105){ fl='SA'; rt=16; t='神の右腕'; } else if(ppr>=85){ fl='AA'; rt=13; t='絶対王者'; } else if(ppr>=65){ fl='A'; rt=10; t='Aフラ達成者'; } else if(ppr>=40){ fl='B'; rt=6; t='マイダーツ購入検討'; }
             const br = GameState.totalDartsThrown>0 ? Math.round((GameState.bullCount/GameState.totalDartsThrown)*100):0;
             
-            document.getElementById('resultModeBadge').textContent = GameState.mode==='BULL_RUSH'?'60s BULL RUSH':GameState.mode==='COUNT_UP'?'COUNT-UP (8R)':'ARRANGE DOJO (01)';
-            document.getElementById('resultTitleBadge').textContent = `称号：${t}`;
-            document.getElementById('resScore').textContent = formatScore(GameState.score); document.getElementById('resRating').textContent = `Rt.${rt} [${fl}]`;
+            document.getElementById('resultModeBadge').textContent = GameState.mode==='BULL_RUSH'?'60s BULL RUSH':GameState.mode==='COUNT_UP'?'COUNT-UP (8R)':GameState.mode==='501'?'501 (15R)':GameState.mode==='701'?'701 (15R)':'ARRANGE DOJO (01)';
+            
+            if (GameState.mode === 'CHECKOUT') {
+                document.getElementById('resultTitleBadge').textContent = `称号：道場破り`;
+                document.getElementById('resScore').textContent = formatScore(GameState.score);
+                document.getElementById('resRating').textContent = `Check Out Training`;
+                document.getElementById('resRating').classList.replace('text-xl', 'text-[10px]');
+            } else {
+                let ratingInfo = calculateRating(ppr, GameState.mode);
+                document.getElementById('resultTitleBadge').textContent = `称号：${ratingInfo.title}`;
+                if (GameState.mode === '501' || GameState.mode === '701') {
+                    document.getElementById('resScore').textContent = `Rem: ${formatScore(GameState.checkoutRemaining)}`;
+                } else {
+                    document.getElementById('resScore').textContent = formatScore(GameState.score);
+                }
+                document.getElementById('resRating').classList.replace('text-[10px]', 'text-xl');
+                document.getElementById('resRating').textContent = `Rt.${ratingInfo.rt} [${ratingInfo.fl}]`;
+            }
+
             document.getElementById('resBullCount').textContent = `${GameState.bullCount}回 (${br}%)`;
             document.getElementById('resMaxCombo').textContent = `${GameState.maxCombo} CHAIN`;
             document.getElementById('resAwardCount').textContent = `${GameState.awardsEarned.length}回`;
@@ -1161,14 +1274,24 @@
         function closeStatsModal() { document.getElementById('statsModal').classList.add('hidden'); }
 
         function shareOnX() {
-            const scoreStr = formatScore(GameState.score);
-            const modeName = GameState.mode === 'BULL_RUSH' ? '60s BULL RUSH' : GameState.mode === 'COUNT_UP' ? 'COUNT-UP (8R)' : 'ARRANGE (01)';
+            let scoreStr = formatScore(GameState.score);
+            let modeName = GameState.mode === 'BULL_RUSH' ? '60s BULL RUSH' : GameState.mode === 'COUNT_UP' ? 'COUNT-UP (8R)' : GameState.mode === '501' ? '501 (15R)' : GameState.mode === '701' ? '701 (15R)' : 'ARRANGE DOJO (01)';
+            
+            if (GameState.mode === '501' || GameState.mode === '701') {
+                scoreStr = GameState.checkoutRemaining === 0 ? "CLEAR!" : `残り ${formatScore(GameState.checkoutRemaining)}`;
+            }
+
             const t = `🎯 NEO DARTS RUSH 🎯\nモード: ${modeName}\nスコア: ${scoreStr} pts\nBULL: ${GameState.bullCount}本 / MAX: ${GameState.maxCombo}コンボ\n\nブラウザで遊べるサイバーダーツ！\n#ネオダーツラッシュ #NeoDartsRush`;
             window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(t)}&url=${encodeURIComponent(GAME_PUBLIC_URL)}`, '_blank');
         }
         function copyResultText() {
-            const scoreStr = formatScore(GameState.score);
-            const modeName = GameState.mode === 'BULL_RUSH' ? '60s BULL RUSH' : GameState.mode === 'COUNT_UP' ? 'COUNT-UP (8R)' : 'ARRANGE (01)';
+            let scoreStr = formatScore(GameState.score);
+            let modeName = GameState.mode === 'BULL_RUSH' ? '60s BULL RUSH' : GameState.mode === 'COUNT_UP' ? 'COUNT-UP (8R)' : GameState.mode === '501' ? '501 (15R)' : GameState.mode === '701' ? '701 (15R)' : 'ARRANGE DOJO (01)';
+            
+            if (GameState.mode === '501' || GameState.mode === '701') {
+                scoreStr = GameState.checkoutRemaining === 0 ? "CLEAR!" : `残り ${formatScore(GameState.checkoutRemaining)}`;
+            }
+
             const t = `🎯 NEO DARTS RUSH 🎯\nモード: ${modeName}\nスコア: ${scoreStr} pts\nBULL: ${GameState.bullCount}本 / MAX: ${GameState.maxCombo}コンボ\n\n遊んでみる: ${GAME_PUBLIC_URL}\n#ネオダーツラッシュ #NeoDartsRush`;
             const ta = document.createElement('textarea'); ta.value = t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta);
             ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
