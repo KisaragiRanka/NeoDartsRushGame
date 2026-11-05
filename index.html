@@ -164,8 +164,7 @@
             <span id="throwGuideText" class="text-[10px] font-bold text-cyan-100 whitespace-nowrap truncate">画面下部から上へスワイプで投擲！</span>
         </div>
 
-        <!-- SPECIAL PERFECT OVERLAY -->
-        <div id="perfectOverlay" class="pointer-events-none absolute inset-0 z-40 hidden transition-all duration-[1500ms] ease-in-out"></div>
+        <div id="perfectOverlay" class="pointer-events-none absolute inset-0 z-40 hidden transition-all duration-1000 ease-in-out"></div>
 
         <div id="awardOverlay" class="pointer-events-none absolute inset-0 flex items-center justify-center z-30 hidden">
             <div id="awardBox" class="w-11/12 py-4 px-3 rounded-2xl bg-gradient-to-r from-slate-950/95 via-fuchsia-950/95 to-slate-950/95 border-y-2 border-amber-400 shadow-2xl flex flex-col items-center justify-center text-center">
@@ -192,8 +191,8 @@
     </footer>
 
     <!-- MODALS (Result & Stats) -->
-    <div id="resultModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
-        <div class="w-full max-w-sm bg-slate-900 rounded-3xl neon-border-cyan p-4 relative animate-fadeIn flex flex-col max-h-full overflow-y-auto">
+    <div id="resultModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 transition-colors duration-1000">
+        <div class="w-full max-w-sm bg-slate-900 rounded-3xl neon-border-cyan p-4 relative animate-fadeIn flex flex-col max-h-full overflow-y-auto transition-all duration-1000">
             <button onclick="closeResultModal()" class="absolute top-3 right-3 w-7 h-7 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center">
                 <i class="fa-solid fa-xmark text-xs"></i>
             </button>
@@ -305,7 +304,7 @@
         <h1 class="font-orbitron font-black text-4xl sm:text-5xl text-center tracking-wider bg-gradient-to-r from-cyan-300 via-white to-fuchsia-400 bg-clip-text text-transparent mb-2 leading-tight">
             NEO DARTS<br>RUSH
         </h1>
-        <p class="text-cyan-400 font-orbitron font-bold text-sm mb-10 tracking-widest text-center">VER 1.1.6</p>
+        <p class="text-cyan-400 font-orbitron font-bold text-sm mb-10 tracking-widest text-center">VER 1.2.2</p>
         <button onclick="startGameFromSplash()" class="py-4 px-14 rounded-full bg-gradient-to-r from-cyan-600 to-fuchsia-600 text-xl font-bold text-white shadow-[0_0_20px_rgba(255,0,127,0.5)] active:scale-95 transition-transform animate-pulse border border-white/20">
             TAP TO START
         </button>
@@ -456,30 +455,27 @@
             playFanfare() {
                 if (this.muted) return; this.init(); if (!this.ctx) return;
                 const now = this.ctx.currentTime;
-                // C5, E5, G5, C6 Fanfare
-                const notes = [523.25, 659.25, 783.99, 1046.50];
-                notes.forEach((freq, idx) => {
+                const melody = [
+                    { f: 523.25, d: 0.15, s: 0.0 }, { f: 659.25, d: 0.15, s: 0.15 }, { f: 783.99, d: 0.15, s: 0.30 },
+                    { f: 1046.50, d: 0.4, s: 0.45 }, { f: 783.99, d: 0.15, s: 0.85 }, { f: 1046.50, d: 0.6, s: 1.0 }
+                ];
+                melody.forEach(note => {
                     const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
                     osc.type = 'square';
-                    const t = now + idx * 0.15;
-                    osc.frequency.setValueAtTime(freq, t);
-                    gain.gain.setValueAtTime(0.2, t);
-                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+                    const start = now + note.s;
+                    osc.frequency.setValueAtTime(note.f, start);
+                    gain.gain.setValueAtTime(0.18, start);
+                    gain.gain.exponentialRampToValueAtTime(0.001, start + note.d);
                     osc.connect(gain); gain.connect(this.ctx.destination);
-                    osc.start(t); osc.stop(t + 0.4);
-                });
-                
-                // Final Chord Arpeggiated
-                const chord = [523.25, 659.25, 783.99, 1046.50];
-                chord.forEach((freq, idx) => {
-                    const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
-                    osc.type = 'sawtooth';
-                    const t = now + 0.6 + (idx * 0.04); 
-                    osc.frequency.setValueAtTime(freq, t);
-                    gain.gain.setValueAtTime(0.15, t);
-                    gain.gain.exponentialRampToValueAtTime(0.001, t + 2.0);
-                    osc.connect(gain); gain.connect(this.ctx.destination);
-                    osc.start(t); osc.stop(t + 2.0);
+                    osc.start(start); osc.stop(start + note.d + 0.1);
+                    
+                    const osc2 = this.ctx.createOscillator(), gain2 = this.ctx.createGain();
+                    osc2.type = 'sawtooth';
+                    osc2.frequency.setValueAtTime(note.f * 1.01, start);
+                    gain2.gain.setValueAtTime(0.12, start);
+                    gain2.gain.exponentialRampToValueAtTime(0.001, start + note.d);
+                    osc2.connect(gain2); gain2.connect(this.ctx.destination);
+                    osc2.start(start); osc2.stop(start + note.d + 0.1);
                 });
             },
             playBust() {
@@ -546,41 +542,32 @@
             TRIPLE_RING: 0.545, OUTER_SINGLE: 0.785, DOUBLE_RING: 0.86, OUT_BOARD_MAX: 1.04
         };
 
-        const _allPoints = new Set([0, 25, 50]);
-        for(let i=1; i<=20; i++) { _allPoints.add(i); _allPoints.add(i*2); _allPoints.add(i*3); }
-        const ALL_PTS = [..._allPoints];
-        
-        const _dblPoints = new Set([50]);
-        for(let i=1; i<=20; i++) _dblPoints.add(i*2);
-        const DBL_PTS = [..._dblPoints];
-        
-        const _mstPoints = new Set([50]);
-        for(let i=1; i<=20; i++) { _mstPoints.add(i*2); _mstPoints.add(i*3); }
-        const MST_PTS = [..._mstPoints];
-
-        function isPossibleCheckout(target, rule) {
-            if(target < 2 || target > 180) return false;
-            const outs = rule === 'DOUBLE' ? DBL_PTS : rule === 'MASTER' ? MST_PTS : ALL_PTS;
-            for (let d1 of ALL_PTS) {
-                for (let d2 of ALL_PTS) {
-                    for (let d3 of outs) {
-                        if (d3 > 0 && d1 + d2 + d3 === target) return true;
-                    }
-                }
+        function isPossibleCheckout(rem, outRule) {
+            if (rem < 2) return false;
+            if (outRule === 'DOUBLE') {
+                if (rem === 50) return true;
+                const impossibles = [169, 168, 166, 165, 163, 162, 159];
+                if (rem > 170 || impossibles.includes(rem)) return false;
+            } else if (outRule === 'MASTER') {
+                const impossibles = [179, 178, 176, 175, 173, 172, 169];
+                if (rem > 180 || impossibles.includes(rem)) return false;
+            } else {
+                const impossibles = [179, 178, 176, 175, 173, 172, 169];
+                if (rem > 180 || impossibles.includes(rem)) return false;
             }
-            return false;
+            return true;
         }
 
-        function generateRandomCheckout(rule) {
+        function generateRandomDojoTarget(outRule) {
             let target;
             do {
-                target = Math.floor(Math.random() * 179) + 2; // 2 to 180
-            } while (!isPossibleCheckout(target, rule));
+                target = Math.floor(Math.random() * (180 - 2 + 1)) + 2;
+            } while (!isPossibleCheckout(target, outRule));
             return target;
         }
 
         function getDynamicCheckoutHint(rem, outRule, startScore) {
-            if (rem === startScore) return "3本以内で0ぴったりにアレンジしよう！";
+            if (rem === startScore) return "🎯 3本以内で0ぴったりにアレンジしよう！";
             if (outRule === 'DOUBLE') {
                 if (rem === 50) return "🎯1本圏内: D-BULL(50)!";
                 if (rem <= 40 && rem % 2 === 0) return `🎯1本圏内: D${rem/2}!`;
@@ -829,27 +816,21 @@
         }
 
         function triggerPerfectEffect() {
-             SoundEngine.playFanfare();
+             const overlay = document.getElementById('perfectOverlay');
+             if(!overlay) return;
              
-             let count = 0;
-             const interval = setInterval(() => {
-                 for(let i=0; i<120; i++) {
-                     GameState.particles.push({
-                         x: boardCenter.x + (Math.random()-0.5)*400,
-                         y: boardCenter.y + (Math.random()-0.5)*400,
-                         vx: (Math.random()-0.5)*18,
-                         vy: (Math.random()-0.5)*18,
-                         radius: Math.random()*6 + 2,
-                         color: ['#ffd700', '#ff007f', '#00f3ff', '#00ff00', '#ff00ff', '#ffffff'][Math.floor(Math.random()*6)],
-                         alpha: 1,
-                         decay: 0.008 + Math.random()*0.015
-                     });
+             let burstCount = 0;
+             const burstInterval = setInterval(() => {
+                 for(let i=0; i<25; i++) {
+                     spawnImpactParticles(
+                         boardCenter.x + (Math.random()-0.5)*canvas.width, 
+                         boardCenter.y + (Math.random()-0.5)*canvas.height, 
+                         ['#ffd700', '#ff007f', '#00f3ff', '#39ff14', '#ff00ff'][Math.floor(Math.random()*5)]
+                     );
                  }
-                 count++;
-                 if(count >= 10) {
-                     clearInterval(interval);
-                 }
-             }, 120); 
+                 burstCount++;
+                 if(burstCount > 8) clearInterval(burstInterval);
+             }, 300);
         }
 
         function handle01Hit(hit, x, y, isSecret) {
@@ -882,7 +863,6 @@
                 GameState.checkoutRemaining = GameState.checkoutStartScore; 
                 GameState.roundHits.push({...hit, points:0}); 
                 
-                // フリーズ防止: トランジション中に他のダーツが投げられるのをブロック
                 GameState.dartIndex = 3; 
                 process01RoundEnd(true); 
                 return;
@@ -905,8 +885,22 @@
                 }
                 
                 if (isPerfect) {
-                    triggerAwardBanner(GameState.mode === '501' ? "9 DARTS!!" : "12 DARTS!!", "PERFECT GAME!", true);
+                    triggerAwardBanner(GameState.mode === '501' ? "9 DARTS!!" : "12 DARTS!!", "PERFECT GAME!");
+                    
+                    document.getElementById('awardMainText').style.background = 'linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3)';
+                    document.getElementById('awardMainText').style.webkitBackgroundClip = 'text';
+                    document.getElementById('awardMainText').style.webkitTextFillColor = 'transparent';
+                    document.getElementById('awardMainText').classList.remove('neon-text-gold');
+
+                    SoundEngine.playFanfare();
                     triggerPerfectEffect();
+                    
+                    setTimeout(() => {
+                        document.getElementById('awardMainText').style.background = '';
+                        document.getElementById('awardMainText').style.webkitBackgroundClip = '';
+                        document.getElementById('awardMainText').style.webkitTextFillColor = '';
+                        document.getElementById('awardMainText').classList.add('neon-text-gold');
+                    }, 2000);
                 } else {
                     SoundEngine.playAward();
                     triggerAwardBanner(`GAME SHOT!`, `NICE ${GameState.outRule} OUT!`);
@@ -915,9 +909,8 @@
                 GameState.secretMultiplier = GameState.pendingSecretMultiplier>1 ? GameState.pendingSecretMultiplier : 1;
                 GameState.pendingSecretMultiplier = 1; GameState.secretTriggeredThisRound = false;
 
-                // フリーズ防止: トランジション中に他のダーツが投げられるのをブロック
                 GameState.dartIndex = 3; 
-                setTimeout(() => { finishGame(); }, 1800);
+                setTimeout(() => { finishGame(); }, 2400);
                 return;
             }
 
@@ -952,7 +945,6 @@
                 triggerAwardBanner('BUST!!', '残りスコアリセット');
                 GameState.checkoutRemaining = GameState.checkoutStartScore; GameState.roundHits = []; 
                 
-                // フリーズ防止
                 GameState.dartIndex = 3; 
                 setTimeout(() => { GameState.landedDarts = []; GameState.dartIndex = 0; updateHUD(); }, 650);
                 return;
@@ -971,7 +963,6 @@
                 GameState.secretMultiplier = GameState.pendingSecretMultiplier>1 ? GameState.pendingSecretMultiplier : 1;
                 GameState.pendingSecretMultiplier = 1; GameState.secretTriggeredThisRound = false;
 
-                // フリーズ防止
                 GameState.dartIndex = 3; 
                 setTimeout(() => {
                     if (GameState.checkoutStage >= 5) finishGame();
@@ -987,7 +978,7 @@
         }
 
         function resetCheckoutRound() {
-            GameState.dartIndex = 3; // フリーズ防止: トランジション中の操作ブロック
+            GameState.dartIndex = 3; 
             setTimeout(() => {
                 if (GameState.secretTriggeredThisRound) { GameState.secretMultiplier = GameState.pendingSecretMultiplier; GameState.pendingSecretMultiplier = 1; }
                 else { GameState.secretMultiplier = 1; GameState.pendingSecretMultiplier = 1; }
@@ -1022,16 +1013,17 @@
 
         function triggerAwardBanner(main, sub) {
             const overlay = document.getElementById('awardOverlay'), box = document.getElementById('awardBox');
+            
             document.getElementById('awardMainText').textContent = main; document.getElementById('awardSubText').textContent = sub;
             overlay.classList.remove('hidden'); box.classList.remove('award-banner-anim');
             void box.offsetWidth; box.classList.add('award-banner-anim');
             setTimeout(() => overlay.classList.add('hidden'), 1900);
         }
+
         function spawnImpactParticles(x,y,c){ GameState.particles.push({x,y,vx:(Math.random()-0.5)*8,vy:(Math.random()-0.5)*8,radius:3,color:c,alpha:1,decay:0.04}); }
         function spawnFloatingText(x,y,text,color,size=14){ GameState.floatingTexts.push({x,y,text,color,size,alpha:1,vy:-1.5}); }
 
         function handlePointerDown(e) {
-            // フリーズ防止の最重要チェック: dartIndexが3以上の時(ラウンド移行中)は操作を完全ブロック！
             if(GameState.isGameOver || GameState.flyingDart || GameState.dartIndex >= 3) return;
             
             SoundEngine.init();
@@ -1210,7 +1202,23 @@
             drawDartboard(time); requestAnimationFrame(gameLoop);
         }
 
-        function formatScore(val) { return val >= 100000 ? val.toExponential(2).replace('e+', 'e') : val; }
+        function formatScore(val) {
+            if (val < 10000) return val;
+            const units = [
+                { unit: '極', value: 1e48 }, { unit: '載', value: 1e44 }, { unit: '正', value: 1e40 },
+                { unit: '澗', value: 1e36 }, { unit: '溝', value: 1e32 }, { unit: '穣', value: 1e28 },
+                { unit: '𥝱', value: 1e24 }, { unit: '垓', value: 1e20 }, { unit: '京', value: 1e16 },
+                { unit: '兆', value: 1e12 }, { unit: '億', value: 1e8 }, { unit: '万', value: 1e4 }
+            ];
+            for (let i = 0; i < units.length; i++) {
+                if (val >= units[i].value) {
+                    let formatted = (val / units[i].value).toFixed(2);
+                    if (formatted.endsWith('.00')) formatted = formatted.slice(0, -3);
+                    return formatted + units[i].unit;
+                }
+            }
+            return val;
+        }
         
         function formatTime(seconds) {
             const m = Math.floor(seconds / 60);
@@ -1317,7 +1325,7 @@
         }
 
         function loadNextCheckoutPuzzle() {
-            GameState.checkoutStartScore = GameState.checkoutRemaining = generateRandomCheckout(GameState.outRule);
+            GameState.checkoutStartScore = GameState.checkoutRemaining = generateRandomDojoTarget(GameState.outRule);
             GameState.roundHits = []; GameState.dartIndex = 0; GameState.landedDarts = []; updateHUD();
         }
 
@@ -1351,6 +1359,20 @@
         }
 
         function showResultModal() {
+            document.getElementById('resultModeBadge').className = 'inline-block text-[10px] font-orbitron font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40';
+            document.querySelector('#resultModal h2').textContent = 'GAME FINISH!!';
+            document.querySelector('#resultModal h2').className = 'font-orbitron font-black text-xl text-white mt-1';
+            document.getElementById('resultTitleBadge').className = 'text-xs font-bold text-amber-400 mt-1';
+            document.getElementById('resScoreLabel').className = 'text-[9px] text-slate-400 font-bold';
+            document.getElementById('resScore').className = 'font-orbitron font-black text-2xl text-white neon-text-cyan mt-1';
+            document.getElementById('resRating').className = 'font-orbitron font-black text-xl text-amber-400';
+            
+            const modalInner = document.getElementById('resultModal').firstElementChild;
+            modalInner.classList.remove('border', 'border-red-600');
+            modalInner.classList.add('neon-border-cyan');
+            modalInner.style.boxShadow = '';
+            document.getElementById('resultModal').style.backgroundColor = '';
+
             let ppr = GameState.totalDartsThrown>0 ? (GameState.totalPointsEarned/GameState.totalDartsThrown)*3 : 0;
             const br = GameState.totalDartsThrown>0 ? Math.round((GameState.bullCount/GameState.totalDartsThrown)*100):0;
             
@@ -1380,6 +1402,7 @@
             } else {
                 let ratingInfo = calculateRating(ppr, GameState.mode, GameState.score);
                 document.getElementById('resultTitleBadge').textContent = `称号：${ratingInfo.title}`;
+                
                 if (GameState.mode === '501' || GameState.mode === '701') {
                     document.getElementById('resScore').textContent = formatScore(GameState.checkoutRemaining);
                 } else {
@@ -1387,6 +1410,33 @@
                 }
                 document.getElementById('resRating').classList.replace('text-[10px]', 'text-xl');
                 document.getElementById('resRating').textContent = `Rt.${ratingInfo.rt} [${ratingInfo.fl}]`;
+                
+                // ホラー演出 (スコアが澗(10^36)以上の場合に変更)
+                if (GameState.score >= 1e36) { 
+                    document.getElementById('resultModeBadge').textContent = 'CRITICAL ERROR';
+                    document.getElementById('resultModeBadge').className = 'inline-block text-[10px] font-orbitron font-bold px-2 py-0.5 rounded-full bg-red-900/50 text-red-400 border border-red-500/80 animate-pulse';
+                    
+                    document.querySelector('#resultModal h2').textContent = 'SYSTEM OVERRIDE';
+                    document.querySelector('#resultModal h2').className = 'font-orbitron font-black text-xl text-red-500 mt-1';
+                    
+                    document.getElementById('resultTitleBadge').textContent = `⚠️ 警告: 監視対象外の事象ヲ検知 ⚠️`;
+                    document.getElementById('resultTitleBadge').className = 'text-[11px] font-bold text-red-500 mt-1 animate-pulse';
+                    
+                    document.getElementById('resScoreLabel').textContent = 'DANGER';
+                    document.getElementById('resScoreLabel').className = 'text-[9px] text-red-500 font-bold animate-pulse';
+                    
+                    document.getElementById('resScore').textContent = `手遅レニナル前ニ逃ゲテ`;
+                    document.getElementById('resScore').className = 'font-orbitron font-black text-base text-red-500 mt-1 animate-pulse';
+                    
+                    document.getElementById('resRating').textContent = `[ 浸 食 済 ]`;
+                    document.getElementById('resRating').className = 'font-orbitron font-black text-xl text-red-600 animate-pulse';
+
+                    modalInner.classList.replace('neon-border-cyan', 'border');
+                    modalInner.classList.add('border-red-600');
+                    modalInner.style.boxShadow = 'inset 0 0 20px rgba(255, 0, 0, 0.2), 0 0 30px rgba(255, 0, 0, 0.4)';
+                    
+                    document.getElementById('resultModal').style.backgroundColor = 'rgba(50, 0, 0, 0.9)';
+                }
             }
 
             document.getElementById('resBullCount').textContent = `${GameState.bullCount}回 (${br}%)`;
