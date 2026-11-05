@@ -22,7 +22,6 @@
             touch-action: manipulation;
         }
 
-        /* 100dvh prevents mobile browser URL bar shrinking issues */
         body {
             height: 100dvh;
             width: 100vw;
@@ -42,23 +41,12 @@
 
         .font-orbitron { font-family: 'Orbitron', sans-serif; }
 
-        /* Cyber Neon Glow Effects */
         .neon-border-cyan {
             border: 1px solid rgba(0, 243, 255, 0.45);
             box-shadow: 0 0 10px rgba(0, 243, 255, 0.15), inset 0 0 8px rgba(0, 243, 255, 0.08);
         }
         .neon-text-cyan { text-shadow: 0 0 10px rgba(0, 243, 255, 0.8), 0 0 22px rgba(0, 243, 255, 0.4); }
         .neon-text-gold { text-shadow: 0 0 12px rgba(255, 215, 0, 0.9), 0 0 28px rgba(255, 165, 0, 0.6); }
-
-        @keyframes shakeHard {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            15% { transform: translate(-4px, -3px) rotate(-1deg); }
-            30% { transform: translate(4px, 2px) rotate(1deg); }
-            45% { transform: translate(-3px, 3px) rotate(-0.5deg); }
-            60% { transform: translate(3px, -2px) rotate(0.5deg); }
-            75% { transform: translate(-2px, 1px) rotate(0deg); }
-        }
-        .shake-effect { animation: shakeHard 0.35s cubic-bezier(.36,.07,.19,.97) both; }
 
         @keyframes awardCutIn {
             0% { opacity: 0; transform: scale(1.6) skewX(-12deg); filter: blur(8px); }
@@ -68,13 +56,10 @@
         }
         .award-banner-anim { animation: awardCutIn 1.95s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* Ensure Canvas receives touches perfectly */
         #dartCanvas { touch-action: none; outline: none; -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
 <body>
-
-    <!-- 1. TOP HEADER (Controls & Game Mode Tabs) -->
     <header class="flex-none px-2 pt-2 pb-1 z-20 max-w-lg mx-auto w-full">
         <div class="flex items-center justify-between mb-1.5 px-1">
             <div class="flex items-center gap-2">
@@ -118,13 +103,14 @@
         </div>
     </header>
 
-    <!-- 2. SCORE & INFO HUD (Compact Middle Panel) -->
     <section class="flex-none px-2 py-1 z-10 max-w-lg mx-auto w-full">
         <div class="bg-slate-900/90 backdrop-blur-sm rounded-xl p-2 neon-border-cyan">
-            <!-- Top Status Row -->
             <div class="flex items-center justify-between text-[10px] font-bold text-slate-400 mb-1 px-1">
                 <span id="hudModeTitle" class="text-cyan-400 font-orbitron tracking-wide">60s RUSH</span>
                 <div class="flex items-center gap-1.5">
+                    <button id="btnBullRuleToggle" onclick="toggleBullRule()" class="hidden text-[9px] font-bold bg-cyan-600/40 border border-cyan-400/50 text-white px-1.5 py-0.5 rounded transition">
+                        FAT BULL
+                    </button>
                     <button id="btnOutRuleToggle" onclick="toggleOutRule()" class="hidden text-[9px] font-bold bg-fuchsia-600/40 border border-fuchsia-400/50 text-white px-1.5 py-0.5 rounded transition">
                         MASTER OUT
                     </button>
@@ -132,7 +118,6 @@
                 </div>
             </div>
 
-            <!-- Big Score & Timer Row -->
             <div class="flex items-baseline justify-between px-1 border-b border-slate-800/50 pb-1.5 mb-1.5">
                 <div>
                     <div class="text-[9px] text-slate-400 uppercase tracking-widest leading-none" id="scoreLabel">SCORE</div>
@@ -146,7 +131,6 @@
                 </div>
             </div>
 
-            <!-- 3 Darts Slots -->
             <div class="grid grid-cols-3 gap-1">
                 <div id="dartSlot0" class="bg-slate-950 border border-slate-800 rounded-lg py-1 flex flex-col items-center justify-center">
                     <span class="text-[8px] text-slate-500 font-orbitron leading-none">1st DART</span>
@@ -162,7 +146,6 @@
                 </div>
             </div>
 
-            <!-- Hint Box -->
             <div id="arrangeHintBox" class="mt-1.5 bg-gradient-to-r from-fuchsia-950/60 to-slate-900 border border-fuchsia-500/30 rounded-lg px-2 py-1 flex items-center gap-1.5">
                 <i class="fa-solid fa-fire-flame-curved text-fuchsia-400 text-[10px]"></i>
                 <div class="flex-1 truncate">
@@ -173,17 +156,17 @@
         </div>
     </section>
 
-    <!-- 3. INTERACTIVE DARTBOARD (Fills remaining space, Flex-grow) -->
     <main id="boardContainer" class="flex-1 w-full min-h-0 relative flex items-center justify-center max-w-lg mx-auto overflow-hidden">
         <canvas id="dartCanvas" class="w-full h-full cursor-crosshair"></canvas>
 
-        <!-- Throw Guide -->
         <div id="throwGuideBanner" class="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 bg-slate-950/85 border border-cyan-500/40 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg max-w-[90%] w-max">
             <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping flex-shrink-0"></span>
             <span id="throwGuideText" class="text-[10px] font-bold text-cyan-100 whitespace-nowrap truncate">画面下部から上へスワイプで投擲！</span>
         </div>
 
-        <!-- FULL-OVERLAY AWARD CUT-IN -->
+        <!-- SPECIAL PERFECT OVERLAY -->
+        <div id="perfectOverlay" class="pointer-events-none absolute inset-0 z-40 hidden transition-all duration-[1500ms] ease-in-out"></div>
+
         <div id="awardOverlay" class="pointer-events-none absolute inset-0 flex items-center justify-center z-30 hidden">
             <div id="awardBox" class="w-11/12 py-4 px-3 rounded-2xl bg-gradient-to-r from-slate-950/95 via-fuchsia-950/95 to-slate-950/95 border-y-2 border-amber-400 shadow-2xl flex flex-col items-center justify-center text-center">
                 <div id="awardSubText" class="font-orbitron text-[9px] font-bold tracking-[0.2em] text-amber-300 uppercase mb-1">
@@ -196,7 +179,6 @@
         </div>
     </main>
 
-    <!-- 4. BOTTOM ACTION FOOTER -->
     <footer class="flex-none px-2 pb-3 pt-1 z-20 max-w-lg mx-auto w-full flex gap-2">
         <button onclick="openStatsModal()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-sm active:scale-95 transition-transform flex items-center justify-center">
             <i class="fa-solid fa-trophy"></i>
@@ -210,7 +192,6 @@
     </footer>
 
     <!-- MODALS (Result & Stats) -->
-    <!-- RESULT MODAL -->
     <div id="resultModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
         <div class="w-full max-w-sm bg-slate-900 rounded-3xl neon-border-cyan p-4 relative animate-fadeIn flex flex-col max-h-full overflow-y-auto">
             <button onclick="closeResultModal()" class="absolute top-3 right-3 w-7 h-7 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center">
@@ -224,7 +205,7 @@
             <div class="my-3 bg-slate-950/90 rounded-xl p-3 border border-slate-800">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
                     <div>
-                        <div class="text-[9px] text-slate-400 font-bold">TOTAL SCORE</div>
+                        <div class="text-[9px] text-slate-400 font-bold" id="resScoreLabel">TOTAL SCORE</div>
                         <div id="resScore" class="font-orbitron font-black text-2xl text-white neon-text-cyan">0</div>
                     </div>
                     <div class="text-right">
@@ -232,6 +213,18 @@
                         <div id="resRating" class="font-orbitron font-black text-xl text-amber-400">Rt.1 [C]</div>
                     </div>
                 </div>
+
+                <div id="resExtraInfo" class="flex justify-between border-b border-slate-800 pb-2 mb-2 hidden">
+                    <div>
+                        <div class="text-[8px] text-slate-400 font-bold">クリアダーツ数</div>
+                        <div id="resDartsThrown" class="font-orbitron font-bold text-sm text-cyan-300">0本</div>
+                    </div>
+                    <div class="text-right" id="resClearTimeContainer">
+                        <div class="text-[8px] text-slate-400 font-bold">クリアタイム</div>
+                        <div id="resClearTime" class="font-orbitron font-bold text-sm text-fuchsia-400">00.0s</div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-3 gap-1.5 text-center">
                     <div class="bg-slate-900/90 p-1.5 rounded-lg border border-slate-800/80">
                         <div class="text-[8px] text-slate-400">BULL命中</div>
@@ -309,9 +302,10 @@
         <div class="w-20 h-20 mb-6 rounded-3xl bg-gradient-to-br from-cyan-500 to-fuchsia-600 flex items-center justify-center shadow-[0_0_40px_rgba(0,243,255,0.4)]">
             <i class="fa-solid fa-bullseye text-white text-5xl"></i>
         </div>
-        <h1 class="font-orbitron font-black text-4xl sm:text-5xl text-center tracking-wider bg-gradient-to-r from-cyan-300 via-white to-fuchsia-400 bg-clip-text text-transparent mb-10 leading-tight">
+        <h1 class="font-orbitron font-black text-4xl sm:text-5xl text-center tracking-wider bg-gradient-to-r from-cyan-300 via-white to-fuchsia-400 bg-clip-text text-transparent mb-2 leading-tight">
             NEO DARTS<br>RUSH
         </h1>
+        <p class="text-cyan-400 font-orbitron font-bold text-sm mb-10 tracking-widest text-center">VER 1.1.6</p>
         <button onclick="startGameFromSplash()" class="py-4 px-14 rounded-full bg-gradient-to-r from-cyan-600 to-fuchsia-600 text-xl font-bold text-white shadow-[0_0_20px_rgba(255,0,127,0.5)] active:scale-95 transition-transform animate-pulse border border-white/20">
             TAP TO START
         </button>
@@ -321,20 +315,15 @@
     <script>
         const GAME_PUBLIC_URL = "https://kisaragiranka.github.io/NeoDartsRushGame/"; 
 
-        // スタート画面のボタンを押した時の処理
         function startGameFromSplash() {
             const screen = document.getElementById('startScreen');
             screen.style.opacity = '0';
             setTimeout(() => { screen.style.display = 'none'; }, 500);
             
-            // ユーザーのタップをトリガーにAudioContextを初期化し、BGMをスタートする
             SoundEngine.init();
             if (!SoundEngine.bgmMuted) SoundEngine.startBGM();
         }
 
-        /**************************************************************
-         * 1. SOUND SYNTHESIS ENGINE (Web Audio API)
-         **************************************************************/
         const SoundEngine = {
             ctx: null, muted: false, bgmMuted: false, bgmPlaying: false,
             bgmTimer: null, nextNoteTime: 0, current16thNote: 0, tempo: 128,
@@ -369,7 +358,6 @@
                 this.bgmTimer = setTimeout(() => this.scheduleBGM(), 25);
             },
             playBGMStep(time, step) {
-                // Kick drum on beats 0, 4, 8, 12 (Max gain increased to 0.20 for louder BGM)
                 if (step % 4 === 0) {
                     const kick = this.ctx.createOscillator();
                     const kickGain = this.ctx.createGain();
@@ -381,8 +369,6 @@
                     kick.connect(kickGain); kickGain.connect(this.ctx.destination);
                     kick.start(time); kick.stop(time + 0.5);
                 }
-                
-                // Off-beat Hi-hat on 2, 6, 10, 14 (Max gain increased to 0.06)
                 if (step % 2 !== 0) {
                     const hat = this.ctx.createOscillator();
                     const hatGain = this.ctx.createGain();
@@ -396,8 +382,6 @@
                     hat.connect(filter); filter.connect(hatGain); hatGain.connect(this.ctx.destination);
                     hat.start(time); hat.stop(time + 0.05);
                 }
-
-                // Cyber Bassline (Max gain increased to 0.12)
                 const bassFreqs = [41.20, 41.20, 41.20, 41.20, 41.20, 41.20, 41.20, 41.20, 48.99, 48.99, 48.99, 48.99, 55.00, 55.00, 36.71, 36.71];
                 const bassOsc = this.ctx.createOscillator();
                 const bassGain = this.ctx.createGain();
@@ -469,6 +453,35 @@
                     osc.connect(gain); gain.connect(this.ctx.destination); osc.start(t); osc.stop(t + 0.46);
                 });
             },
+            playFanfare() {
+                if (this.muted) return; this.init(); if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                // C5, E5, G5, C6 Fanfare
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+                    osc.type = 'square';
+                    const t = now + idx * 0.15;
+                    osc.frequency.setValueAtTime(freq, t);
+                    gain.gain.setValueAtTime(0.2, t);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+                    osc.connect(gain); gain.connect(this.ctx.destination);
+                    osc.start(t); osc.stop(t + 0.4);
+                });
+                
+                // Final Chord Arpeggiated
+                const chord = [523.25, 659.25, 783.99, 1046.50];
+                chord.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    const t = now + 0.6 + (idx * 0.04); 
+                    osc.frequency.setValueAtTime(freq, t);
+                    gain.gain.setValueAtTime(0.15, t);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + 2.0);
+                    osc.connect(gain); gain.connect(this.ctx.destination);
+                    osc.start(t); osc.stop(t + 2.0);
+                });
+            },
             playBust() {
                 if (this.muted) return; this.init(); if (!this.ctx) return;
                 const now = this.ctx.currentTime;
@@ -526,9 +539,6 @@
             }
         };
 
-        /**************************************************************
-         * 2. DARTBOARD GEOMETRY & RULES
-         **************************************************************/
         const BOARD_NUMBERS = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
         const SECRET_SEQUENCE = [6, 2, 9];
         const RADII = {
@@ -536,17 +546,41 @@
             TRIPLE_RING: 0.545, OUTER_SINGLE: 0.785, DOUBLE_RING: 0.86, OUT_BOARD_MAX: 1.04
         };
 
-        const CHECKOUT_PROBLEMS = [
-            { target: 40, hintMaster: "D20 または S8 → D16", hintDouble: "D20 または S8 → D16", hintOpen: "S20×2 または D20" },
-            { target: 50, hintMaster: "BULL (1本クリア)", hintDouble: "D-BULL (インブル1本!)", hintOpen: "BULL (1本クリア)" },
-            { target: 68, hintMaster: "BULL(50) → D9", hintDouble: "T20(60) → D4", hintOpen: "BULL(50) → S18" },
-            { target: 82, hintMaster: "BULL(50) → D16", hintDouble: "D-BULL(50) → D16", hintOpen: "BULL(50) → S16×2" },
-            { target: 108, hintMaster: "BULL(50) → BULL(50) → D4", hintDouble: "T20(60) → S16 → D16", hintOpen: "BULL(50)×2 → S8" }
-        ];
+        const _allPoints = new Set([0, 25, 50]);
+        for(let i=1; i<=20; i++) { _allPoints.add(i); _allPoints.add(i*2); _allPoints.add(i*3); }
+        const ALL_PTS = [..._allPoints];
+        
+        const _dblPoints = new Set([50]);
+        for(let i=1; i<=20; i++) _dblPoints.add(i*2);
+        const DBL_PTS = [..._dblPoints];
+        
+        const _mstPoints = new Set([50]);
+        for(let i=1; i<=20; i++) { _mstPoints.add(i*2); _mstPoints.add(i*3); }
+        const MST_PTS = [..._mstPoints];
+
+        function isPossibleCheckout(target, rule) {
+            if(target < 2 || target > 180) return false;
+            const outs = rule === 'DOUBLE' ? DBL_PTS : rule === 'MASTER' ? MST_PTS : ALL_PTS;
+            for (let d1 of ALL_PTS) {
+                for (let d2 of ALL_PTS) {
+                    for (let d3 of outs) {
+                        if (d3 > 0 && d1 + d2 + d3 === target) return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function generateRandomCheckout(rule) {
+            let target;
+            do {
+                target = Math.floor(Math.random() * 179) + 2; // 2 to 180
+            } while (!isPossibleCheckout(target, rule));
+            return target;
+        }
 
         function getDynamicCheckoutHint(rem, outRule, startScore) {
-            const p = CHECKOUT_PROBLEMS.find(x => x.target === startScore);
-            if (rem === startScore && p) return outRule === 'MASTER' ? p.hintMaster : outRule === 'DOUBLE' ? p.hintDouble : p.hintOpen;
+            if (rem === startScore) return "3本以内で0ぴったりにアレンジしよう！";
             if (outRule === 'DOUBLE') {
                 if (rem === 50) return "🎯1本圏内: D-BULL(50)!";
                 if (rem <= 40 && rem % 2 === 0) return `🎯1本圏内: D${rem/2}!`;
@@ -587,15 +621,11 @@
             return { rt, fl, title };
         }
 
-
-        /**************************************************************
-         * 3. STATE & STORAGE
-         **************************************************************/
         const GameState = {
-            mode: 'BULL_RUSH', controlScheme: 'SWIPE', outRule: 'MASTER',
+            mode: 'BULL_RUSH', controlScheme: 'SWIPE', outRule: 'MASTER', bullRule: 'FAT',
             score: 0, round: 1, maxRounds: 8, dartIndex: 0, roundHits: [],
             timeLeft: 60.0, timerActive: false, lastFrameTime: 0, combo: 0, maxCombo: 0, feverMultiplier: 1.0, bonusNumber: 20,
-            checkoutStage: 1, checkoutStartScore: 82, checkoutRemaining: 82, checkoutClearedCount: 0,
+            checkoutStage: 1, checkoutStartScore: 82, checkoutRemaining: 82, checkoutClearedCount: 0, dojoTimeSeconds: 0,
             totalDartsThrown: 0, totalPointsEarned: 0, bullCount: 0, innerBullCount: 0, awardsEarned: [], isGameOver: false,
             secretStep: 0, secretMultiplier: 1, pendingSecretMultiplier: 1, secretTriggeredThisRound: false, lockedOutNumber: null,
             crosshair: { x: 0, y: 0, baseX: 0, baseY: 0 }, swayTime: 0, isDragging: false, dragStart: { x: 0, y: 0 }, dragCurrent: { x: 0, y: 0 },
@@ -609,9 +639,6 @@
             save() { try { localStorage.setItem('neo_darts_v2', JSON.stringify(this)); } catch(e){} }
         };
 
-        /**************************************************************
-         * 4. ENGINE & HIT LOGIC
-         **************************************************************/
         const canvas = document.getElementById('dartCanvas');
         const ctx = canvas.getContext('2d');
         let boardCenter = { x: 0, y: 0 }, boardRadius = 0;
@@ -623,7 +650,6 @@
             canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             boardCenter = { x: rect.width / 2, y: rect.height / 2 };
-            // Maximize board radius for mobile screen (48% of shortest dimension to leave tiny gap)
             boardRadius = Math.min(rect.width, rect.height) * 0.48;
 
             if (!GameState.isDragging && GameState.totalDartsThrown === 0) {
@@ -670,9 +696,6 @@
             return { label: `${baseNum}`, points: baseNum, base: baseNum, multiplier: 1, isBull: false, isInnerBull: false, isOutBoard: false };
         }
 
-        /**************************************************************
-         * 5. GAME LOGIC & AWARDS
-         **************************************************************/
         function launchDartTowards(targetX, targetY) {
             if (GameState.isGameOver || GameState.flyingDart) return;
             const dx = targetX - boardCenter.x, dy = targetY - boardCenter.y;
@@ -704,7 +727,7 @@
                 GameState.secretStep = 0; GameState.secretTriggeredThisRound = true;
                 const baseMult = Math.max(GameState.secretMultiplier, GameState.pendingSecretMultiplier);
                 GameState.pendingSecretMultiplier = baseMult * 100;
-                SoundEngine.playSecretActivate(); triggerScreenShake();
+                SoundEngine.playSecretActivate();
                 triggerAwardBanner(`SECRET 6-2-9!!`, `次ラウンド得点 ×${GameState.pendingSecretMultiplier} 確定！`);
                 spawnFloatingText(boardCenter.x, boardCenter.y-20, `NEXT ROUND ×${GameState.pendingSecretMultiplier}!!`, '#ffd700', 22);
                 return true;
@@ -753,12 +776,12 @@
                 GameState.bullCount++; if(hit.isInnerBull) GameState.innerBullCount++; PersistentStats.totalBulls++;
                 GameState.feverMultiplier = GameState.combo >= 6 ? 3.0 : GameState.combo >= 4 ? 2.0 : GameState.combo >= 2 ? 1.5 : 1.0;
                 gained = Math.round((hit.isInnerBull ? 75 : 50) * GameState.feverMultiplier * sm);
-                SoundEngine.playBull(hit.isInnerBull); triggerScreenShake(); spawnImpactParticles(x,y, hit.isInnerBull?'#ffd700':'#00f3ff');
+                SoundEngine.playBull(hit.isInnerBull); spawnImpactParticles(x,y, hit.isInnerBull?'#ffd700':'#00f3ff');
                 spawnFloatingText(x, y, `${hit.label}! +${gained}`, hit.isInnerBull?'#ffd700':'#00f3ff', 20);
             } else {
                 if (hit.base === GameState.bonusNumber && hit.multiplier === 3) {
                     GameState.combo++; gained = Math.round(hit.points * 2 * GameState.feverMultiplier * sm);
-                    SoundEngine.playAward(); triggerScreenShake(); spawnFloatingText(x, y, `BONUS! +${gained}`, '#ff007f', 18);
+                    SoundEngine.playAward(); spawnFloatingText(x, y, `BONUS! +${gained}`, '#ff007f', 18);
                 } else {
                     GameState.combo = 0; GameState.feverMultiplier = 1.0;
                     if (hit.points > 0) { SoundEngine.playSegmentHit(hit.multiplier, hit.base); spawnFloatingText(x, y, `+${gained}`, '#e2e8f0'); }
@@ -775,7 +798,7 @@
                 GameState.combo++; GameState.maxCombo = Math.max(GameState.maxCombo, GameState.combo);
                 GameState.bullCount++; PersistentStats.totalBulls++;
                 const pts = 50 * sm; GameState.score += pts; GameState.totalPointsEarned += pts;
-                SoundEngine.playBull(hit.isInnerBull); triggerScreenShake(); spawnImpactParticles(x,y,'#00f3ff');
+                SoundEngine.playBull(hit.isInnerBull); spawnImpactParticles(x,y,'#00f3ff');
                 spawnFloatingText(x, y, `${hit.label}! +${pts}`, '#00f3ff', 20);
                 recordDartInRound({ ...hit, points: pts });
             } else {
@@ -787,15 +810,61 @@
             }
         }
 
+        function process01RoundEnd(isBust) {
+            setTimeout(() => {
+                if (!isBust) {
+                    if (GameState.secretTriggeredThisRound) { GameState.secretMultiplier = GameState.pendingSecretMultiplier; GameState.pendingSecretMultiplier = 1; }
+                    else { GameState.secretMultiplier = 1; GameState.pendingSecretMultiplier = 1; }
+                    GameState.checkoutStartScore = GameState.checkoutRemaining; 
+                } else {
+                    GameState.secretMultiplier = 1; GameState.pendingSecretMultiplier = 1;
+                }
+                GameState.secretStep = 0; GameState.secretTriggeredThisRound = false;
+                GameState.roundHits = []; GameState.dartIndex = 0; GameState.landedDarts = [];
+                
+                if (GameState.round >= GameState.maxRounds) { finishGame(); return; }
+                if (GameState.round < GameState.maxRounds) GameState.round++;
+                updateHUD();
+            }, 680);
+        }
+
+        function triggerPerfectEffect() {
+             SoundEngine.playFanfare();
+             
+             let count = 0;
+             const interval = setInterval(() => {
+                 for(let i=0; i<120; i++) {
+                     GameState.particles.push({
+                         x: boardCenter.x + (Math.random()-0.5)*400,
+                         y: boardCenter.y + (Math.random()-0.5)*400,
+                         vx: (Math.random()-0.5)*18,
+                         vy: (Math.random()-0.5)*18,
+                         radius: Math.random()*6 + 2,
+                         color: ['#ffd700', '#ff007f', '#00f3ff', '#00ff00', '#ff00ff', '#ffffff'][Math.floor(Math.random()*6)],
+                         alpha: 1,
+                         decay: 0.008 + Math.random()*0.015
+                     });
+                 }
+                 count++;
+                 if(count >= 10) {
+                     clearInterval(interval);
+                 }
+             }, 120); 
+        }
+
         function handle01Hit(hit, x, y, isSecret) {
             if (hit.isOutBoard) {
                 if(!isSecret){ SoundEngine.playOutBoard(); spawnFloatingText(x,y,'OUT(0)','#94a3b8'); }
                 GameState.roundHits.push({...hit, points:0}); GameState.dartIndex++;
-                if(GameState.dartIndex>=3) resetCheckoutRound();
+                if(GameState.dartIndex>=3) {
+                    evaluateRoundAwards(GameState.roundHits);
+                    process01RoundEnd(false); 
+                }
                 return;
             }
             
-            const pts = hit.isBull ? (GameState.outRule === 'DOUBLE' ? (hit.isInnerBull?50:25) : 50) : hit.points;
+            const pts = hit.isBull ? (GameState.bullRule === 'SEPARATE' ? (hit.isInnerBull?50:25) : 50) : hit.points;
+            
             if(hit.isBull) { GameState.bullCount++; PersistentStats.totalBulls++; }
             GameState.totalPointsEarned += pts;
 
@@ -807,24 +876,48 @@
             const leavesOne = (newRem===1 && (GameState.outRule==='MASTER'||GameState.outRule==='DOUBLE'));
 
             if (newRem < 0 || leavesOne || (newRem===0 && !valid)) {
-                SoundEngine.playBust(); triggerScreenShake(); spawnFloatingText(x,y,'BUST!','#ef4444',20);
+                SoundEngine.playBust(); spawnFloatingText(x,y,'BUST!','#ef4444',20);
                 triggerAwardBanner('BUST!!', '残りスコアリセット');
-                GameState.checkoutRemaining = GameState.checkoutStartScore; GameState.roundHits = []; GameState.dartIndex = 0;
-                setTimeout(() => { GameState.landedDarts = []; updateHUD(); }, 650);
+                
+                GameState.checkoutRemaining = GameState.checkoutStartScore; 
+                GameState.roundHits.push({...hit, points:0}); 
+                
+                // フリーズ防止: トランジション中に他のダーツが投げられるのをブロック
+                GameState.dartIndex = 3; 
+                process01RoundEnd(true); 
                 return;
             }
 
             GameState.checkoutRemaining = newRem;
+            
             if (newRem === 0) {
                 GameState.checkoutClearedCount++; PersistentStats.checkoutClears++; PersistentStats.save();
-                SoundEngine.playAward(); triggerScreenShake(); spawnFloatingText(x,y,`CLEAR!`,'#ffd700',20);
+                spawnFloatingText(x,y,`CLEAR!`,'#ffd700',20);
                 GameState.awardsEarned.push(`GAME SHOT`);
-                triggerAwardBanner(`GAME SHOT!`, `NICE ${GameState.outRule} OUT!`);
+                
+                let isPerfect = false;
+                if (GameState.mode === '501' && GameState.totalDartsThrown === 9) {
+                    GameState.awardsEarned.push("9 DARTS");
+                    isPerfect = true;
+                } else if (GameState.mode === '701' && GameState.totalDartsThrown === 12) {
+                    GameState.awardsEarned.push("12 DARTS");
+                    isPerfect = true;
+                }
+                
+                if (isPerfect) {
+                    triggerAwardBanner(GameState.mode === '501' ? "9 DARTS!!" : "12 DARTS!!", "PERFECT GAME!", true);
+                    triggerPerfectEffect();
+                } else {
+                    SoundEngine.playAward();
+                    triggerAwardBanner(`GAME SHOT!`, `NICE ${GameState.outRule} OUT!`);
+                }
                 
                 GameState.secretMultiplier = GameState.pendingSecretMultiplier>1 ? GameState.pendingSecretMultiplier : 1;
                 GameState.pendingSecretMultiplier = 1; GameState.secretTriggeredThisRound = false;
 
-                setTimeout(() => { finishGame(); }, 1300);
+                // フリーズ防止: トランジション中に他のダーツが投げられるのをブロック
+                GameState.dartIndex = 3; 
+                setTimeout(() => { finishGame(); }, 1800);
                 return;
             }
 
@@ -834,19 +927,9 @@
             GameState.roundHits.push({...hit, points:pts}); GameState.dartIndex++;
             if(GameState.dartIndex>=3) {
                  evaluateRoundAwards(GameState.roundHits);
-                 setTimeout(() => {
-                    if (GameState.secretTriggeredThisRound) { GameState.secretMultiplier = GameState.pendingSecretMultiplier; GameState.pendingSecretMultiplier = 1; }
-                    else { GameState.secretMultiplier = 1; GameState.pendingSecretMultiplier = 1; }
-                    GameState.secretStep = 0; GameState.secretTriggeredThisRound = false;
-                    GameState.checkoutStartScore = GameState.checkoutRemaining; // update start score for next round BUST logic
-                    GameState.roundHits = []; GameState.dartIndex = 0; GameState.landedDarts = [];
-                    if (GameState.round >= GameState.maxRounds) { finishGame(); return; }
-                    if (GameState.round < GameState.maxRounds) GameState.round++;
-                    updateHUD();
-                }, 680);
+                 process01RoundEnd(false);
             }
         }
-
 
         function handleCheckoutHit(hit, x, y, isSecret) {
             if (hit.isOutBoard) {
@@ -865,10 +948,13 @@
             const leavesOne = (newRem===1 && (GameState.outRule==='MASTER'||GameState.outRule==='DOUBLE'));
 
             if (newRem < 0 || leavesOne || (newRem===0 && !valid)) {
-                SoundEngine.playBust(); triggerScreenShake(); spawnFloatingText(x,y,'BUST!','#ef4444',20);
+                SoundEngine.playBust(); spawnFloatingText(x,y,'BUST!','#ef4444',20);
                 triggerAwardBanner('BUST!!', '残りスコアリセット');
-                GameState.checkoutRemaining = GameState.checkoutStartScore; GameState.roundHits = []; GameState.dartIndex = 0;
-                setTimeout(() => { GameState.landedDarts = []; updateHUD(); }, 650);
+                GameState.checkoutRemaining = GameState.checkoutStartScore; GameState.roundHits = []; 
+                
+                // フリーズ防止
+                GameState.dartIndex = 3; 
+                setTimeout(() => { GameState.landedDarts = []; GameState.dartIndex = 0; updateHUD(); }, 650);
                 return;
             }
 
@@ -878,13 +964,15 @@
                 const bonus = GameState.outRule==='DOUBLE'?300:GameState.outRule==='MASTER'?150:50;
                 const stagePts = (GameState.checkoutStartScore*10 + (3-GameState.dartIndex)*150 + bonus) * GameState.secretMultiplier;
                 GameState.score += stagePts; GameState.combo++;
-                SoundEngine.playAward(); triggerScreenShake(); spawnFloatingText(x,y,`CLEAR! +${stagePts}`,'#ffd700',20);
+                SoundEngine.playAward(); spawnFloatingText(x,y,`CLEAR! +${stagePts}`,'#ffd700',20);
                 GameState.awardsEarned.push(`STAGE ${GameState.checkoutStage}`);
                 triggerAwardBanner(`NICE ${GameState.outRule} OUT!`, `+${stagePts} PTS`);
                 
                 GameState.secretMultiplier = GameState.pendingSecretMultiplier>1 ? GameState.pendingSecretMultiplier : 1;
                 GameState.pendingSecretMultiplier = 1; GameState.secretTriggeredThisRound = false;
 
+                // フリーズ防止
+                GameState.dartIndex = 3; 
                 setTimeout(() => {
                     if (GameState.checkoutStage >= 5) finishGame();
                     else { GameState.checkoutStage++; loadNextCheckoutPuzzle(); }
@@ -899,6 +987,7 @@
         }
 
         function resetCheckoutRound() {
+            GameState.dartIndex = 3; // フリーズ防止: トランジション中の操作ブロック
             setTimeout(() => {
                 if (GameState.secretTriggeredThisRound) { GameState.secretMultiplier = GameState.pendingSecretMultiplier; GameState.pendingSecretMultiplier = 1; }
                 else { GameState.secretMultiplier = 1; GameState.pendingSecretMultiplier = 1; }
@@ -938,18 +1027,13 @@
             void box.offsetWidth; box.classList.add('award-banner-anim');
             setTimeout(() => overlay.classList.add('hidden'), 1900);
         }
-        function triggerScreenShake() {
-            const c = document.getElementById('boardContainer');
-            c.classList.remove('shake-effect'); void c.offsetWidth; c.classList.add('shake-effect');
-        }
         function spawnImpactParticles(x,y,c){ GameState.particles.push({x,y,vx:(Math.random()-0.5)*8,vy:(Math.random()-0.5)*8,radius:3,color:c,alpha:1,decay:0.04}); }
         function spawnFloatingText(x,y,text,color,size=14){ GameState.floatingTexts.push({x,y,text,color,size,alpha:1,vy:-1.5}); }
 
-        /**************************************************************
-         * 6. INPUT (Swipe & Tap)
-         **************************************************************/
         function handlePointerDown(e) {
-            if(GameState.isGameOver || GameState.flyingDart) return;
+            // フリーズ防止の最重要チェック: dartIndexが3以上の時(ラウンド移行中)は操作を完全ブロック！
+            if(GameState.isGameOver || GameState.flyingDart || GameState.dartIndex >= 3) return;
+            
             SoundEngine.init();
             if (!SoundEngine.bgmPlaying && !SoundEngine.bgmMuted) SoundEngine.startBGM();
             
@@ -1008,9 +1092,6 @@
         canvas.addEventListener('touchmove', e => { e.preventDefault(); handlePointerMove(e); }, {passive:false});
         canvas.addEventListener('touchend', e => { e.preventDefault(); handlePointerUp(); }, {passive:false});
 
-        /**************************************************************
-         * 7. RENDERING LOOP
-         **************************************************************/
         function drawArcSegment(cx, cy, innerR, outerR, startAngle, endAngle, fill) {
             ctx.beginPath(); ctx.arc(cx, cy, outerR, startAngle, endAngle, false); ctx.arc(cx, cy, innerR, endAngle, startAngle, true);
             ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); ctx.lineWidth = 0.5; ctx.strokeStyle = 'rgba(51,65,85,0.5)'; ctx.stroke();
@@ -1105,6 +1186,10 @@
                 else document.getElementById('progressDisplay').innerHTML = `${GameState.timeLeft.toFixed(1)}<span class="text-xs">s</span>`;
             }
 
+            if (!GameState.isGameOver && GameState.mode === 'CHECKOUT') {
+                GameState.dojoTimeSeconds += dt;
+            }
+
             if (GameState.controlScheme === 'SWIPE' && !GameState.isGameOver) {
                 GameState.swayTime += dt * 2; const sr = GameState.isDragging ? 4 : 8;
                 GameState.crosshair.x = GameState.crosshair.baseX + Math.sin(GameState.swayTime * 1.3) * sr;
@@ -1125,10 +1210,13 @@
             drawDartboard(time); requestAnimationFrame(gameLoop);
         }
 
-        /**************************************************************
-         * 8. UI UPDATES & CONTROLS
-         **************************************************************/
         function formatScore(val) { return val >= 100000 ? val.toExponential(2).replace('e+', 'e') : val; }
+        
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = (seconds % 60).toFixed(1);
+            return m > 0 ? `${m}m ${s}s` : `${s}s`;
+        }
 
         function updateHUD() {
             ['BULL_RUSH','COUNT_UP','501','701','CHECKOUT'].forEach(m => {
@@ -1138,6 +1226,13 @@
             });
 
             const secB = GameState.secretMultiplier>1 ? ` 🔥×${GameState.secretMultiplier}` : GameState.pendingSecretMultiplier>1 ? ` (次R×${GameState.pendingSecretMultiplier})` : '';
+
+            if (GameState.mode === '501' || GameState.mode === '701') {
+                document.getElementById('btnBullRuleToggle').classList.remove('hidden');
+                document.getElementById('btnBullRuleToggle').textContent = GameState.bullRule + ' BULL';
+            } else {
+                document.getElementById('btnBullRuleToggle').classList.add('hidden');
+            }
 
             if (GameState.mode === 'BULL_RUSH') {
                 document.getElementById('hudModeTitle').textContent = '🔥 60s RUSH';
@@ -1210,12 +1305,20 @@
         }
         function toggleOutRule() {
             const arr = ['MASTER','DOUBLE','OPEN']; GameState.outRule = arr[(arr.indexOf(GameState.outRule)+1)%3];
-            GameState.checkoutRemaining = GameState.checkoutStartScore; GameState.roundHits = []; GameState.dartIndex = 0; GameState.landedDarts = []; updateHUD();
+            if (GameState.mode === 'CHECKOUT') {
+                loadNextCheckoutPuzzle();
+            } else {
+                GameState.checkoutRemaining = GameState.checkoutStartScore; GameState.roundHits = []; GameState.dartIndex = 0; GameState.landedDarts = []; updateHUD();
+            }
+        }
+        function toggleBullRule() {
+            GameState.bullRule = GameState.bullRule === 'FAT' ? 'SEPARATE' : 'FAT';
+            updateHUD();
         }
 
         function loadNextCheckoutPuzzle() {
-            const p = CHECKOUT_PROBLEMS[Math.floor(Math.random()*CHECKOUT_PROBLEMS.length)];
-            GameState.checkoutStartScore = GameState.checkoutRemaining = p.target; GameState.roundHits = []; GameState.dartIndex = 0; GameState.landedDarts = []; updateHUD();
+            GameState.checkoutStartScore = GameState.checkoutRemaining = generateRandomCheckout(GameState.outRule);
+            GameState.roundHits = []; GameState.dartIndex = 0; GameState.landedDarts = []; updateHUD();
         }
 
         function resetGame() {
@@ -1224,7 +1327,7 @@
             GameState.checkoutStage=1; GameState.checkoutClearedCount=0; GameState.totalDartsThrown=0; GameState.totalPointsEarned=0;
             GameState.bullCount=0; GameState.innerBullCount=0; GameState.awardsEarned=[]; GameState.isGameOver=false;
             GameState.secretStep=0; GameState.secretMultiplier=1; GameState.pendingSecretMultiplier=1; GameState.secretTriggeredThisRound=false; GameState.lockedOutNumber=null;
-            GameState.flyingDart=null; GameState.landedDarts=[]; GameState.timingPhase='HORIZONTAL';
+            GameState.flyingDart=null; GameState.landedDarts=[]; GameState.timingPhase='HORIZONTAL'; GameState.dojoTimeSeconds=0;
             GameState.crosshair.baseX = boardCenter.x; GameState.crosshair.baseY = boardCenter.y;
             if(GameState.mode==='CHECKOUT') {
                  loadNextCheckoutPuzzle();
@@ -1253,6 +1356,22 @@
             
             document.getElementById('resultModeBadge').textContent = GameState.mode==='BULL_RUSH'?'60s RUSH':GameState.mode==='COUNT_UP'?'COUNT-UP (8R)':GameState.mode==='501'?'501 (15R)':GameState.mode==='701'?'701 (15R)':'ARRANGE DOJO (01)';
             
+            if (GameState.mode === '501' || GameState.mode === '701' || GameState.mode === 'CHECKOUT') {
+                document.getElementById('resExtraInfo').classList.remove('hidden');
+                document.getElementById('resDartsThrown').textContent = GameState.totalDartsThrown + '本';
+                
+                if (GameState.mode === 'CHECKOUT') {
+                    document.getElementById('resClearTime').textContent = formatTime(GameState.dojoTimeSeconds);
+                    document.getElementById('resClearTimeContainer').classList.remove('hidden');
+                } else {
+                    document.getElementById('resClearTimeContainer').classList.add('hidden');
+                }
+                document.getElementById('resScoreLabel').textContent = GameState.mode === 'CHECKOUT' ? 'TOTAL SCORE' : 'REMAINING';
+            } else {
+                document.getElementById('resExtraInfo').classList.add('hidden');
+                document.getElementById('resScoreLabel').textContent = 'TOTAL SCORE';
+            }
+
             if (GameState.mode === 'CHECKOUT') {
                 document.getElementById('resultTitleBadge').textContent = `称号：道場破り`;
                 document.getElementById('resScore').textContent = formatScore(GameState.score);
@@ -1262,7 +1381,7 @@
                 let ratingInfo = calculateRating(ppr, GameState.mode, GameState.score);
                 document.getElementById('resultTitleBadge').textContent = `称号：${ratingInfo.title}`;
                 if (GameState.mode === '501' || GameState.mode === '701') {
-                    document.getElementById('resScore').textContent = `Rem: ${formatScore(GameState.checkoutRemaining)}`;
+                    document.getElementById('resScore').textContent = formatScore(GameState.checkoutRemaining);
                 } else {
                     document.getElementById('resScore').textContent = formatScore(GameState.score);
                 }
@@ -1282,6 +1401,7 @@
             });
             document.getElementById('resultModal').classList.remove('hidden');
         }
+
         function closeResultModal() { document.getElementById('resultModal').classList.add('hidden'); }
         function openStatsModal() {
             document.getElementById('statHighBullRush').textContent = formatScore(PersistentStats.highBullRush); document.getElementById('statHighCountUp').textContent = formatScore(PersistentStats.highCountUp);
@@ -1293,34 +1413,35 @@
         function shareOnX() {
             let scoreStr = formatScore(GameState.score);
             let modeName = GameState.mode === 'BULL_RUSH' ? '60s RUSH' : GameState.mode === 'COUNT_UP' ? 'COUNT-UP (8R)' : GameState.mode === '501' ? '501 (15R)' : GameState.mode === '701' ? '701 (15R)' : 'ARRANGE DOJO (01)';
-            
+            let extraStr = "";
+
             if (GameState.mode === '501' || GameState.mode === '701') {
                 scoreStr = GameState.checkoutRemaining === 0 ? "CLEAR!" : `残り ${formatScore(GameState.checkoutRemaining)}`;
+                if (GameState.checkoutRemaining === 0) extraStr = `\n🎯クリア: ${GameState.totalDartsThrown}ダーツ`;
+            } else if (GameState.mode === 'CHECKOUT') {
+                if (GameState.checkoutStage > 5 || (GameState.checkoutStage === 5 && GameState.checkoutRemaining === 0)) {
+                    extraStr = `\n🎯クリア: ${GameState.totalDartsThrown}本 / ⏱️タイム: ${GameState.dojoTimeSeconds.toFixed(1)}s`;
+                }
             }
 
-            const t = `🎯 NEO DARTS RUSH 🎯\nモード: ${modeName}\nスコア: ${scoreStr} pts\nBULL: ${GameState.bullCount}本 / MAX: ${GameState.maxCombo}コンボ\n\nブラウザで遊べるサイバーダーツ！\n#ネオダーツラッシュ #NeoDartsRush`;
-            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(t)}&url=${encodeURIComponent(GAME_PUBLIC_URL)}`, '_blank');
-        }
-        function copyResultText() {
-            let scoreStr = formatScore(GameState.score);
-            let modeName = GameState.mode === 'BULL_RUSH' ? '60s RUSH' : GameState.mode === 'COUNT_UP' ? 'COUNT-UP (8R)' : GameState.mode === '501' ? '501 (15R)' : GameState.mode === '701' ? '701 (15R)' : 'ARRANGE DOJO (01)';
-            
-            if (GameState.mode === '501' || GameState.mode === '701') {
-                scoreStr = GameState.checkoutRemaining === 0 ? "CLEAR!" : `残り ${formatScore(GameState.checkoutRemaining)}`;
-            }
-
-            const t = `🎯 NEO DARTS RUSH 🎯\nモード: ${modeName}\nスコア: ${scoreStr} pts\nBULL: ${GameState.bullCount}本 / MAX: ${GameState.maxCombo}コンボ\n\nブラウザで遊べるサイバーダーツ！\n#ネオダーツラッシュ #NeoDartsRush`;
+            const t = `🎯 NEO DARTS RUSH 🎯\nモード: ${modeName}\nスコア: ${scoreStr} pts${extraStr}\nBULL: ${GameState.bullCount}本 / MAX: ${GameState.maxCombo}コンボ\n\nブラウザで遊べるサイバーダーツ！\n#ネオダーツラッシュ #NeoDartsRush`;
             window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(t)}&url=${encodeURIComponent(GAME_PUBLIC_URL)}`, '_blank');
         }
         function copyResultText() {
             let scoreStr = formatScore(GameState.score);
             let modeName = GameState.mode === 'BULL_RUSH' ? '60s BULL RUSH' : GameState.mode === 'COUNT_UP' ? 'COUNT-UP (8R)' : GameState.mode === '501' ? '501 (15R)' : GameState.mode === '701' ? '701 (15R)' : 'ARRANGE DOJO (01)';
-            
+            let extraStr = "";
+
             if (GameState.mode === '501' || GameState.mode === '701') {
                 scoreStr = GameState.checkoutRemaining === 0 ? "CLEAR!" : `残り ${formatScore(GameState.checkoutRemaining)}`;
+                if (GameState.checkoutRemaining === 0) extraStr = `\n🎯クリア: ${GameState.totalDartsThrown}ダーツ`;
+            } else if (GameState.mode === 'CHECKOUT') {
+                if (GameState.checkoutStage > 5 || (GameState.checkoutStage === 5 && GameState.checkoutRemaining === 0)) {
+                    extraStr = `\n🎯クリア: ${GameState.totalDartsThrown}本 / ⏱️タイム: ${GameState.dojoTimeSeconds.toFixed(1)}s`;
+                }
             }
 
-            const t = `🎯 NEO DARTS RUSH 🎯\nモード: ${modeName}\nスコア: ${scoreStr} pts\nBULL: ${GameState.bullCount}本 / MAX: ${GameState.maxCombo}コンボ\n\n遊んでみる: ${GAME_PUBLIC_URL}\n#ネオダーツラッシュ #NeoDartsRush`;
+            const t = `🎯 NEO DARTS RUSH 🎯\nモード: ${modeName}\nスコア: ${scoreStr} pts${extraStr}\nBULL: ${GameState.bullCount}本 / MAX: ${GameState.maxCombo}コンボ\n\n遊んでみる: ${GAME_PUBLIC_URL}\n#ネオダーツラッシュ #NeoDartsRush`;
             const ta = document.createElement('textarea'); ta.value = t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta);
             ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
             const msg = document.getElementById('toastNotice'); msg.classList.remove('hidden');
