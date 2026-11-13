@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NEO DARTS RUSH // ネオ・ダーツ・ラッシュ VER 2.4.0</title>
+    <title>NEO DARTS RUSH // ネオ・ダーツ・ラッシュ VER 3.0.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&family=Orbitron:wght@600;800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * {
@@ -49,7 +49,6 @@
             filter: drop-shadow(0 0 12px rgba(255, 120, 0, 0.9));
         }
 
-        /* ラウンド・LEG大型アワード用アニメーション */
         @keyframes awardCutIn {
             0% { opacity: 0; transform: scale(1.6) skewX(-12deg); filter: blur(8px); }
             15% { opacity: 1; transform: scale(1) skewX(-8deg); filter: blur(0px); }
@@ -58,7 +57,6 @@
         }
         .award-banner-anim { animation: awardCutIn 1.85s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* 単発ヒット（INNER BULL / SINGLE BULL / T20）高速カットイン (0.65秒) */
         @keyframes quickCutIn {
             0% { opacity: 0; transform: translateX(-35px) scale(0.85) skewX(-16deg); }
             22% { opacity: 1; transform: translateX(0px) scale(1.05) skewX(-12deg); }
@@ -67,7 +65,6 @@
         }
         .quick-cutin-anim { animation: quickCutIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* ダーツ盤面コンテナ＆絶対配置キャンバス（Flex潰れ防止） */
         #boardContainer {
             flex: 1 1 auto;
             min-height: 220px;
@@ -100,7 +97,7 @@
     </style>
 </head>
 <body>
-    <!-- 超スリムヘッダー＆6モード1行コンパクトタブ -->
+    <!-- 超スリムヘッダー＆8モード1行コンパクトタブ -->
     <header class="flex-none px-2 pt-1 pb-0.5 z-20 max-w-lg mx-auto w-full">
         <div class="flex items-center justify-between mb-1 px-0.5">
             <div class="flex items-center gap-1.5">
@@ -114,6 +111,9 @@
                     <i id="controlIcon" class="fa-solid fa-hand-pointer"></i>
                     <span id="controlLabel">スワイプ</span>
                 </button>
+                <button id="btnVoice" onclick="toggleVoice()" class="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-slate-800 border border-emerald-500/40 text-emerald-300 text-[9px] font-orbitron font-bold active:scale-95 transition-transform" title="英語ボイスON/OFF">
+                    <i id="voiceIcon" class="fa-solid fa-microphone-lines text-emerald-400"></i>
+                </button>
                 <button id="btnBGM" onclick="toggleBGM()" class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-800 border border-fuchsia-500/40 text-fuchsia-300 text-[9px] font-orbitron font-bold active:scale-95 transition-transform">
                     <i id="bgmIcon" class="fa-solid fa-music text-fuchsia-400"></i>
                     <span id="bgmLabel">BGM1</span>
@@ -123,24 +123,30 @@
                 </button>
             </div>
         </div>
-        <!-- 高さ約28pxの1行6列コンパクトモードバー -->
-        <div class="grid grid-cols-6 gap-1 h-7">
-            <button onclick="switchGameMode('BULL_RUSH')" id="tab-BULL_RUSH" class="mode-tab flex items-center justify-center gap-0.5 rounded font-bold text-[8px] sm:text-[10px] transition-all border border-cyan-400 bg-cyan-500/20 text-white px-0.5 truncate">
+        <!-- 高さ約28pxの1行8列コンパクトモードバー -->
+        <div class="grid grid-cols-8 gap-0.5 h-7">
+            <button onclick="switchGameMode('BULL_RUSH')" id="tab-BULL_RUSH" class="mode-tab flex items-center justify-center gap-0.5 rounded font-bold text-[8px] sm:text-[9px] transition-all border border-cyan-400 bg-cyan-500/20 text-white px-0.5 truncate">
                 <i class="fa-solid fa-bolt text-amber-400 text-[8px]"></i><span>RUSH</span>
             </button>
-            <button onclick="switchGameMode('COUNT_UP')" id="tab-COUNT_UP" class="mode-tab flex items-center justify-center gap-0.5 rounded font-bold text-[8px] sm:text-[10px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400 px-0.5 truncate">
+            <button onclick="switchGameMode('COUNT_UP')" id="tab-COUNT_UP" class="mode-tab flex items-center justify-center gap-0.5 rounded font-bold text-[8px] sm:text-[9px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400 px-0.5 truncate">
                 <i class="fa-solid fa-chart-line text-cyan-400 text-[8px]"></i><span>C-UP</span>
             </button>
-            <button onclick="switchGameMode('501')" id="tab-501" class="mode-tab flex items-center justify-center gap-0.5 rounded font-bold text-[8px] sm:text-[10px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400 px-0.5 truncate">
-                <i class="fa-solid fa-crosshairs text-fuchsia-400 text-[8px]"></i><span>501</span>
+            <button onclick="switchGameMode('01')" id="tab-01" class="mode-tab flex items-center justify-center gap-0.5 rounded font-bold text-[8px] sm:text-[9px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400 px-0.5 truncate">
+                <i class="fa-solid fa-crosshairs text-fuchsia-400 text-[8px]"></i><span>01</span>
             </button>
-            <button onclick="switchGameMode('701')" id="tab-701" class="mode-tab flex items-center justify-center gap-0.5 rounded font-bold text-[8px] sm:text-[10px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400 px-0.5 truncate">
-                <i class="fa-solid fa-crosshairs text-purple-400 text-[8px]"></i><span>701</span>
-            </button>
-            <button onclick="switchGameMode('CRICKET')" id="tab-CRICKET" class="mode-tab flex items-center justify-center gap-0.5 rounded font-bold text-[8px] sm:text-[10px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400 px-0.5 truncate">
+            <button onclick="switchGameMode('CRICKET')" id="tab-CRICKET" class="mode-tab flex items-center justify-center gap-0.5 rounded font-bold text-[8px] sm:text-[9px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400 px-0.5 truncate">
                 <i class="fa-solid fa-shield-halved text-emerald-400 text-[8px]"></i><span>CRK</span>
             </button>
-            <button onclick="switchGameMode('CHECKOUT')" id="tab-CHECKOUT" class="mode-tab flex items-center justify-center gap-0.5 rounded font-bold text-[8px] sm:text-[10px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400 px-0.5 truncate">
+            <button onclick="switchGameMode('VS_CPU')" id="tab-VS_CPU" class="mode-tab flex items-center justify-center gap-0.5 rounded font-bold text-[8px] sm:text-[9px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400 px-0.5 truncate">
+                <i class="fa-solid fa-robot text-rose-400 text-[8px]"></i><span>CPU</span>
+            </button>
+            <button onclick="switchGameMode('BOSS')" id="tab-BOSS" class="mode-tab flex items-center justify-center gap-0.5 rounded font-bold text-[8px] sm:text-[9px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400 px-0.5 truncate">
+                <i class="fa-solid fa-crown text-amber-300 text-[8px]"></i><span>BOSS</span>
+            </button>
+            <button onclick="switchGameMode('PARTY')" id="tab-PARTY" class="mode-tab flex items-center justify-center gap-0.5 rounded font-bold text-[8px] sm:text-[9px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400 px-0.5 truncate">
+                <i class="fa-solid fa-bomb text-orange-400 text-[8px]"></i><span>PARTY</span>
+            </button>
+            <button onclick="switchGameMode('CHECKOUT')" id="tab-CHECKOUT" class="mode-tab flex items-center justify-center gap-0.5 rounded font-bold text-[8px] sm:text-[9px] transition-all border border-slate-800 bg-slate-900/80 text-slate-400 px-0.5 truncate">
                 <i class="fa-solid fa-flag-checkered text-amber-400 text-[8px]"></i><span>道場</span>
             </button>
         </div>
@@ -149,17 +155,21 @@
     <!-- 超スリムHUD -->
     <section class="flex-none px-2 py-0.5 z-10 max-w-lg mx-auto w-full">
         <div class="bg-slate-900/90 backdrop-blur-sm rounded-xl p-1.5 neon-border-cyan">
-            <!-- 1段目: モード名・ターン表示・LEG切替・CPU切替・ルール切替・ステータス -->
+            <!-- 1段目: モード名・ターン表示・各種ルール切替・ステータス -->
             <div class="flex items-center justify-between text-[9px] font-bold text-slate-400 mb-1 px-0.5 gap-1">
                 <div class="flex items-center gap-1 min-w-0">
                     <span id="hudModeTitle" class="text-cyan-400 font-orbitron tracking-wide truncate">60s RUSH</span>
                     <span id="turnBadge" class="hidden text-[8px] font-orbitron font-black px-1 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/50 whitespace-nowrap">YOUR TURN</span>
                 </div>
-                <div class="flex items-center gap-1 flex-shrink-0">
+                <div class="flex items-center gap-1 flex-shrink-0 flex-wrap justify-end">
+                    <button id="btn01TypeToggle" onclick="toggleZeroOneType()" class="hidden text-[8px] font-orbitron font-bold bg-fuchsia-600/40 border border-fuchsia-400/60 text-white px-1.5 py-0.2 rounded active:scale-95 transition">501</button>
+                    <button id="btnCpuGameToggle" onclick="toggleCpuGameType()" class="hidden text-[8px] font-orbitron font-bold bg-rose-600/40 border border-rose-400/60 text-rose-100 px-1.5 py-0.2 rounded active:scale-95 transition">501</button>
+                    <button id="btnCpuLevelToggle" onclick="toggleCpuLevel()" class="hidden text-[8px] font-bold bg-emerald-600/35 border border-emerald-400/60 text-emerald-200 px-1.5 py-0.2 rounded active:scale-95 transition">Lv.2 [B]</button>
+                    <button id="btnBossGameToggle" onclick="toggleBossGameType()" class="hidden text-[8px] font-orbitron font-bold bg-amber-600/40 border border-amber-400/60 text-amber-100 px-1.5 py-0.2 rounded active:scale-95 transition">501</button>
+                    <button id="btnPartyTypeToggle" onclick="togglePartyType()" class="hidden text-[8px] font-orbitron font-bold bg-orange-600/40 border border-orange-400/60 text-orange-100 px-1.5 py-0.2 rounded active:scale-95 transition">HALF-IT</button>
                     <button id="btnLegRuleToggle" onclick="toggleLegFormat()" class="hidden text-[8px] font-orbitron font-bold bg-amber-600/35 border border-amber-400/60 text-amber-200 px-1.5 py-0.2 rounded active:scale-95 transition">1 LEG</button>
-                    <button id="btnCpuToggle" onclick="toggleCpuLevel()" class="hidden text-[8px] font-bold bg-emerald-600/35 border border-emerald-400/60 text-emerald-200 px-1.5 py-0.2 rounded active:scale-95 transition">SOLO</button>
-                    <button id="btnBullRuleToggle" onclick="toggleBullRule()" class="hidden text-[8px] font-bold bg-cyan-600/40 border border-cyan-400/50 text-white px-1.5 py-0.2 rounded active:scale-95 transition">FAT BULL</button>
-                    <button id="btnOutRuleToggle" onclick="toggleOutRule()" class="hidden text-[8px] font-bold bg-fuchsia-600/40 border border-fuchsia-400/50 text-white px-1.5 py-0.2 rounded active:scale-95 transition">MASTER</button>
+                    <button id="btnBullRuleToggle" onclick="toggleBullRule()" class="hidden text-[8px] font-bold bg-cyan-600/40 border border-cyan-400/50 text-white px-1.5 py-0.2 rounded active:scale-95 transition">FAT</button>
+                    <button id="btnOutRuleToggle" onclick="toggleOutRule()" class="hidden text-[8px] font-bold bg-purple-600/40 border border-purple-400/50 text-white px-1.5 py-0.2 rounded active:scale-95 transition">MASTER</button>
                     <span id="hudSubStatus" class="bg-slate-800 px-1.5 py-0.2 rounded text-amber-300 font-orbitron whitespace-nowrap">FEVER x1.0</span>
                 </div>
             </div>
@@ -175,7 +185,6 @@
                         <div id="mainScoreDisplay" class="font-orbitron font-black text-xl sm:text-2xl text-white neon-text-cyan tracking-tight leading-none mt-0.5">0</div>
                     </div>
 
-                    <!-- 3LEG/5LEG時のLEGスコア中央ピル -->
                     <div id="legScoreBadge" class="hidden flex-col items-center justify-center bg-slate-950/90 border border-amber-500/40 rounded px-1.5 py-0.5">
                         <span id="legNumberLabel" class="text-[7px] font-orbitron font-bold text-amber-300 leading-none">LEG 1</span>
                         <span id="legScoreText" class="font-orbitron font-black text-[10px] text-white leading-tight mt-0.5">0 - 0</span>
@@ -228,7 +237,7 @@
         </div>
     </section>
 
-    <!-- ダーツボード描画エリア（盤面表示保証・ResizeObserver監視対象） -->
+    <!-- ダーツボード描画エリア -->
     <main id="boardContainer" class="max-w-lg mx-auto">
         <canvas id="dartCanvas" class="cursor-crosshair"></canvas>
 
@@ -240,12 +249,12 @@
         <div id="perfectOverlay" class="pointer-events-none absolute inset-0 z-40 hidden transition-all duration-1000 ease-in-out"></div>
 
         <!-- 単発ヒット専用・高速カットイン（INNER BULL / SINGLE BULL / TRIPLE 20） -->
-        <div id="quickCutInOverlay" class="pointer-events-none absolute inset-x-0 top-3 flex items-center justify-center z-25 hidden">
-            <div id="quickCutInBox" class="px-4 py-1 rounded-xl bg-slate-950/90 border-y-2 border-cyan-400 shadow-[0_0_25px_rgba(0,243,255,0.6)] flex items-center gap-2">
-                <i id="quickCutInIcon" class="fa-solid fa-bullseye text-amber-400 text-sm"></i>
+        <div id="quickHitBanner" class="pointer-events-none absolute inset-x-0 top-3 flex items-center justify-center z-25 hidden">
+            <div id="quickHitBox" class="px-4 py-1 rounded-xl bg-slate-950/90 border-y-2 border-cyan-400 shadow-[0_0_25px_rgba(0,243,255,0.6)] flex items-center gap-2">
+                <i id="quickHitIcon" class="fa-solid fa-bullseye text-amber-400 text-sm"></i>
                 <div>
-                    <div id="quickCutInSub" class="font-orbitron text-[7px] font-bold tracking-[0.2em] text-cyan-300 leading-none">CRITICAL HIT</div>
-                    <div id="quickCutInMain" class="font-orbitron font-black text-lg sm:text-xl text-white tracking-wider leading-tight">INNER BULL!!</div>
+                    <div id="quickHitSub" class="font-orbitron text-[7px] font-bold tracking-[0.2em] text-cyan-300 leading-none">CRITICAL HIT</div>
+                    <div id="quickHitMain" class="font-orbitron font-black text-lg sm:text-xl text-white tracking-wider leading-tight">INNER BULL!!</div>
                 </div>
             </div>
         </div>
@@ -333,15 +342,24 @@
                 </div>
             </div>
 
-            <!-- マイ戦績データ -->
             <div class="space-y-1.5 text-xs mb-3.5">
                 <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center"><span class="text-slate-400 font-bold">🔥 RUSH ハイスコア</span><span id="statHighBullRush" class="font-orbitron font-black text-sm text-amber-400">0</span></div>
                 <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center"><span class="text-slate-400 font-bold">🎯 COUNT-UP ハイスコア</span><span id="statHighCountUp" class="font-orbitron font-black text-sm text-cyan-400">0</span></div>
                 <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center"><span class="text-slate-400 font-bold">🏆 VS CPU 勝利数</span><span id="statCpuWins" class="font-orbitron font-black text-sm text-fuchsia-400">0勝</span></div>
-                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center"><span class="text-slate-400 font-bold">🥇 LEGマッチ 勝利数</span><span id="statMatchWins" class="font-orbitron font-black text-sm text-amber-300">0勝</span></div>
-                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center"><span class="text-slate-400 font-bold">🛡️ CRICKET 勝利数</span><span id="statCricketWins" class="font-orbitron font-black text-sm text-emerald-400">0勝</span></div>
+                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center"><span class="text-slate-400 font-bold">👑 BOSS 最高到達</span><span id="statBossBest" class="font-orbitron font-black text-sm text-rose-400">STAGE 1</span></div>
+                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center"><span class="text-slate-400 font-bold">💣 HALF-IT ハイスコア</span><span id="statHighHalfIt" class="font-orbitron font-black text-sm text-orange-400">0</span></div>
+                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center"><span class="text-slate-400 font-bold">🦅 EAGLE'S EYE ハイスコア</span><span id="statHighEaglesEye" class="font-orbitron font-black text-sm text-amber-300">0</span></div>
                 <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center"><span class="text-slate-400 font-bold">⚡ 道場 クリア数</span><span id="statCheckoutClears" class="font-orbitron font-black text-sm text-purple-400">0回</span></div>
-                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center"><span class="text-slate-400 font-bold">🎯 通算BULL命中数</span><span id="statTotalBulls" class="font-orbitron font-black text-sm text-cyan-300">0回</span></div>
+                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center"><span class="text-slate-400 font-bold">🎯 通算BULL / 🏅 アワード</span><span id="statTotalBulls" class="font-orbitron font-black text-sm text-cyan-300">0回 / 0回</span></div>
+            </div>
+
+            <!-- ダーツフライト＆レーザー軌跡（アワード 0 / 5 / 15 / 30回解放） -->
+            <div class="border-t border-slate-800 pt-3 mb-3.5">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="font-orbitron font-bold text-xs text-amber-300"><i class="fa-solid fa-jet-fighter-up mr-1"></i> FLIGHT &amp; LASER TRAIL</span>
+                    <span class="text-[9px] text-cyan-300 font-bold">アワード 5/15/30回で解放</span>
+                </div>
+                <div class="grid grid-cols-2 gap-1.5" id="trailSelectorGrid"></div>
             </div>
 
             <!-- BGMサウンドトラック（CPU 5勝 / 10勝解放） -->
@@ -369,30 +387,134 @@
     <!-- トースト通知 -->
     <div id="toastNotice" class="fixed bottom-14 left-1/2 -translate-x-1/2 bg-cyan-500 text-slate-950 font-bold text-[11px] px-3.5 py-1.5 rounded-full shadow-lg z-50 hidden transition-all whitespace-nowrap">コピーしました！</div>
 
-    <!-- スプラッシュスタート画面 -->
-    <div id="startScreen" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center p-4 transition-opacity duration-500">
+    <!-- スプラッシュスタート画面（画面全体どこでもタップ・クリック即反応） -->
+    <div id="startScreen" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center p-4 transition-opacity duration-300 cursor-pointer">
         <div class="w-20 h-20 mb-6 rounded-3xl bg-gradient-to-br from-cyan-500 to-fuchsia-600 flex items-center justify-center shadow-[0_0_40px_rgba(0,243,255,0.4)]"><i class="fa-solid fa-bullseye text-white text-5xl"></i></div>
         <h1 class="font-orbitron font-black text-4xl sm:text-5xl text-center tracking-wider bg-gradient-to-r from-cyan-300 via-white to-fuchsia-400 bg-clip-text text-transparent mb-2 leading-tight">NEO DARTS<br>RUSH</h1>
-        <p class="text-cyan-400 font-orbitron font-bold text-sm mb-10 tracking-widest text-center">VER 2.4.0 // UNLOCKABLE BGM & BOARD FIX</p>
-        <button onclick="startGameFromSplash()" class="py-4 px-14 rounded-full bg-gradient-to-r from-cyan-600 to-fuchsia-600 text-xl font-bold text-white shadow-[0_0_20px_rgba(255,0,127,0.5)] active:scale-95 transition-transform animate-pulse border border-white/20">TAP TO START</button>
-        <p class="text-slate-400 text-xs mt-8 font-bold"><i class="fa-solid fa-headphones"></i> 音声オン推奨</p>
+        <p class="text-cyan-400 font-orbitron font-bold text-sm mb-10 tracking-widest text-center">VER 3.0.1 // ALL-STAR CYBER EDITION</p>
+        <button id="btnTapToStart" type="button" class="py-4 px-14 rounded-full bg-gradient-to-r from-cyan-600 to-fuchsia-600 text-xl font-bold text-white shadow-[0_0_20px_rgba(255,0,127,0.5)] active:scale-95 transition-transform animate-pulse border border-white/20">TAP TO START</button>
+        <p class="text-slate-400 text-xs mt-8 font-bold"><i class="fa-solid fa-headphones"></i> 音声＆英語ボイスオン推奨</p>
     </div>
 
     <script>
         const GAME_PUBLIC_URL = "https://kisaragiranka.github.io/NeoDartsRushGame/";
 
-        function startGameFromSplash() {
+        // ==========================================
+        // スタート画面ハンドラ（多重発火防止・非同期音声安全化）
+        // ==========================================
+        let hasGameStarted = false;
+        function startGameFromSplash(e) {
+            if (e) {
+                if (e.cancelable) e.preventDefault();
+                e.stopPropagation();
+            }
+            if (hasGameStarted) return;
+            hasGameStarted = true;
+
             const splash = document.getElementById('startScreen');
-            splash.style.opacity = '0';
-            setTimeout(() => {
-                splash.style.display = 'none';
+            if (splash) {
+                splash.style.pointerEvents = 'none';
+                splash.style.opacity = '0';
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                    resizeCanvas();
+                }, 350);
+            }
+
+            try {
                 resizeCanvas();
-            }, 500);
-            SoundEngine.init();
-            if (!SoundEngine.bgmMuted) SoundEngine.startBGM();
-            resizeCanvas();
-            setTimeout(resizeCanvas, 60);
+                setTimeout(resizeCanvas, 60);
+            } catch (err) {}
+
+            try {
+                SoundEngine.init();
+                if (!SoundEngine.bgmMuted) SoundEngine.startBGM();
+            } catch (err) {}
+
+            try {
+                VoiceAnnouncer.init();
+                VoiceAnnouncer.speak("Welcome to Neo Darts Rush!");
+            } catch (err) {}
         }
+
+        // ==========================================
+        // サイバー英語ボイスアナウンサー (Web Speech API)
+        // ==========================================
+        const VoiceAnnouncer = {
+            enabled: true,
+            preferredVoice: null,
+            init() {
+                if (!('speechSynthesis' in window)) return;
+                const loadVoices = () => {
+                    try {
+                        const voices = window.speechSynthesis.getVoices();
+                        this.preferredVoice =
+                            voices.find(v => v.lang.startsWith('en') && /Google|Samantha|Alex|Daniel|Victoria|Microsoft/i.test(v.name)) ||
+                            voices.find(v => v.lang.startsWith('en')) ||
+                            null;
+                    } catch (e) {}
+                };
+                loadVoices();
+                if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                    window.speechSynthesis.onvoiceschanged = loadVoices;
+                }
+            },
+            speak(text, force = false) {
+                if (!this.enabled || SoundEngine.muted || !('speechSynthesis' in window)) return;
+                try {
+                    if (force) window.speechSynthesis.cancel();
+                    const utter = new SpeechSynthesisUtterance(text);
+                    if (this.preferredVoice) utter.voice = this.preferredVoice;
+                    utter.lang = 'en-US';
+                    utter.rate = 1.14;
+                    utter.pitch = 0.92;
+                    utter.volume = 0.9;
+                    window.speechSynthesis.speak(utter);
+                } catch (e) {}
+            }
+        };
+
+        // ==========================================
+        // ダーツフライト＆レーザー軌跡カスタム定義（アワード 0 / 5 / 15 / 30回解放）
+        // ==========================================
+        const DART_TRAILS = {
+            CYBER_CYAN: {
+                id: 'CYBER_CYAN',
+                name: 'CYBER CYAN',
+                desc: '初期解放 / 標準シアンレーザー',
+                requiredAwards: 0,
+                primaryColor: '#00f3ff',
+                trailColors: ['#00f3ff', '#38bdf8', '#a5f3fc'],
+                wingStyle: 'STANDARD'
+            },
+            BLAZE_FLAME: {
+                id: 'BLAZE_FLAME',
+                name: 'BLAZE FLAME',
+                desc: '紅蓮の炎フライト＆火炎軌跡',
+                requiredAwards: 5,
+                primaryColor: '#ff4500',
+                trailColors: ['#ff2a00', '#ff7700', '#ffd700'],
+                wingStyle: 'FLAME'
+            },
+            THUNDER_VOLT: {
+                id: 'THUNDER_VOLT',
+                name: 'THUNDER VOLT',
+                desc: '紫電スパーク＆稲妻レーザー',
+                requiredAwards: 15,
+                primaryColor: '#fde047',
+                trailColors: ['#fde047', '#00f3ff', '#c084fc'],
+                wingStyle: 'BOLT'
+            },
+            RAINBOW_PRISM: {
+                id: 'RAINBOW_PRISM',
+                name: 'RAINBOW PRISM',
+                desc: '7色プリズムスター＆虹色軌跡',
+                requiredAwards: 30,
+                primaryColor: '#ff007f',
+                trailColors: ['#ff0055', '#ff9900', '#ffee00', '#00ff88', '#00f3ff', '#b700ff'],
+                wingStyle: 'STAR'
+            }
+        };
 
         // ==========================================
         // ボード＆照準着せ替えスキン定義（BULL 50 / 100 / 200回解放）
@@ -501,7 +623,7 @@
         };
 
         // ==========================================
-        // Web Audio API サウンドエンジン (VER 2.4.0 CPU勝利解放型マルチトラックBGM)
+        // Web Audio API マルチトラックシンセサイザー音源
         // ==========================================
         const SoundEngine = {
             ctx: null,
@@ -510,7 +632,7 @@
             bgmPlaying: false,
             bgmTimer: null,
             nextNoteTime: 0,
-            currentStep: 0, // 64ステップ (4小節ループ)
+            currentStep: 0,
             trackIndex: 0,
             bgmBus: null,
             bgmMasterGain: null,
@@ -525,12 +647,13 @@
                     name: 'CYBER RUSH',
                     genre: 'Synthwave 132BPM',
                     requiredCpuWins: 0,
+                    tempo: 132,
                     bassRoots: [40, 36, 38, 35],
                     chords: [
-                        [64, 67, 71, 76], // Em
-                        [60, 64, 67, 72], // C
-                        [62, 66, 69, 74], // D
-                        [59, 63, 66, 71]  // B7
+                        [64, 67, 71, 76],
+                        [60, 64, 67, 72],
+                        [62, 66, 69, 74],
+                        [59, 63, 66, 71]
                     ],
                     arpNotes: [
                         [64, 67, 71, 76, 71, 67, 76, 71],
@@ -538,7 +661,6 @@
                         [62, 66, 69, 74, 69, 66, 74, 69],
                         [59, 63, 66, 71, 66, 63, 75, 71]
                     ],
-                    tempo: 132,
                     lead: [
                         76, null, null, 79, null, null, 83, null, 81, null, 79, null, 76, null, 74, null,
                         72, null, null, 76, null, null, 79, null, 81, null, 79, null, 76, null, 74, null,
@@ -555,10 +677,10 @@
                     tempo: 138,
                     bassRoots: [33, 29, 36, 31],
                     chords: [
-                        [57, 60, 64, 69], // Am
-                        [53, 57, 60, 65], // F
-                        [60, 64, 67, 72], // C
-                        [55, 59, 62, 67]  // G
+                        [57, 60, 64, 69],
+                        [53, 57, 60, 65],
+                        [60, 64, 67, 72],
+                        [55, 59, 62, 67]
                     ],
                     arpNotes: [
                         [69, 72, 76, 81, 76, 72, 81, 76],
@@ -582,10 +704,10 @@
                     tempo: 116,
                     bassRoots: [38, 31, 34, 33],
                     chords: [
-                        [62, 65, 69, 72], // Dm7
-                        [55, 58, 62, 65], // Gm7
-                        [58, 62, 65, 69], // Bbmaj7
-                        [57, 61, 64, 67]  // A7
+                        [62, 65, 69, 72],
+                        [55, 58, 62, 65],
+                        [58, 62, 65, 69],
+                        [57, 61, 64, 67]
                     ],
                     arpNotes: [
                         [62, 65, 69, 72, 74, 72, 69, 65],
@@ -621,14 +743,16 @@
             },
 
             init() {
-                if (!this.ctx) {
-                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                    if (AudioCtx) {
-                        this.ctx = new AudioCtx();
-                        this.setupAudioGraph();
+                try {
+                    if (!this.ctx) {
+                        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                        if (AudioCtx) {
+                            this.ctx = new AudioCtx();
+                            this.setupAudioGraph();
+                        }
                     }
-                }
-                if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+                    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+                } catch (e) {}
             },
 
             setupAudioGraph() {
@@ -672,7 +796,7 @@
             isClimaxActive() {
                 if (typeof GameState === 'undefined') return false;
                 if (GameState.mode === 'BULL_RUSH' && GameState.feverMultiplier >= 2.0) return true;
-                if ((GameState.mode === '501' || GameState.mode === '701' || GameState.mode === 'CHECKOUT') && GameState.checkoutRemaining > 0 && GameState.checkoutRemaining <= 100) return true;
+                if ((isZeroOneRules() || GameState.mode === 'CHECKOUT') && GameState.checkoutRemaining > 0 && GameState.checkoutRemaining <= 100) return true;
                 if (GameState.legFormat > 1) {
                     const needed = Math.ceil(GameState.legFormat / 2);
                     if (GameState.playerLegsWon === needed - 1 && GameState.cpuLegsWon === needed - 1) return true;
@@ -1225,11 +1349,65 @@
 
         const CPU_PROFILES = [
             { level: 0, label: 'SOLO', short: 'SOLO', spread: 0, bullProb: 0 },
-            { level: 1, label: 'CPU Lv.1 [C]', short: 'Lv.1 [C]', spread: 0.34, bullProb: 0.12 },
-            { level: 2, label: 'CPU Lv.2 [B]', short: 'Lv.2 [B]', spread: 0.22, bullProb: 0.28 },
-            { level: 3, label: 'CPU Lv.3 [A]', short: 'Lv.3 [A]', spread: 0.13, bullProb: 0.48 },
-            { level: 4, label: 'CPU Lv.4 [SA]', short: 'Lv.4 [SA]', spread: 0.065, bullProb: 0.72 }
+            { level: 1, label: 'Lv.1 [C]', short: 'Lv.1 [C]', spread: 0.34, bullProb: 0.12 },
+            { level: 2, label: 'Lv.2 [B]', short: 'Lv.2 [B]', spread: 0.22, bullProb: 0.28 },
+            { level: 3, label: 'Lv.3 [A]', short: 'Lv.3 [A]', spread: 0.13, bullProb: 0.48 },
+            { level: 4, label: 'Lv.4 [SA]', short: 'Lv.4 [SA]', spread: 0.065, bullProb: 0.72 },
+            { level: 5, label: 'OMEGA [GOD]', short: 'OMEGA[GOD]', spread: 0.032, bullProb: 0.88 }
         ];
+
+        const BOSS_STAGES = [
+            { stage: 1, cpuLevel: 1, name: 'ROOKIE BOT', rank: 'C', title: 'STAGE 1: ROOKIE BOT [C]' },
+            { stage: 2, cpuLevel: 2, name: 'STREET ACE', rank: 'B', title: 'STAGE 2: STREET ACE [B]' },
+            { stage: 3, cpuLevel: 3, name: 'CYBER PRO', rank: 'A', title: 'STAGE 3: CYBER PRO [A]' },
+            { stage: 4, cpuLevel: 4, name: 'NEON MASTER', rank: 'SA', title: 'STAGE 4: NEON MASTER [SA]' },
+            { stage: 5, cpuLevel: 5, name: 'OMEGA OVERLORD', rank: 'GOD', title: 'STAGE 5: OMEGA OVERLORD [GOD]' }
+        ];
+
+        const HALF_IT_ROUNDS = [
+            { round: 1, label: '15', type: 'NUMBER', num: 15, desc: 'R1ターゲット: [ 15 ] 1本も入らないとスコア半減！' },
+            { round: 2, label: '16', type: 'NUMBER', num: 16, desc: 'R2ターゲット: [ 16 ] 1本も入らないとスコア半減！' },
+            { round: 3, label: 'DOUBLE', type: 'DOUBLE', num: null, desc: 'R3ターゲット: [ 任意のダブル ] ミスでスコア半減！' },
+            { round: 4, label: '17', type: 'NUMBER', num: 17, desc: 'R4ターゲット: [ 17 ] 1本も入らないとスコア半減！' },
+            { round: 5, label: '18', type: 'NUMBER', num: 18, desc: 'R5ターゲット: [ 18 ] 1本も入らないとスコア半減！' },
+            { round: 6, label: 'TRIPLE', type: 'TRIPLE', num: null, desc: 'R6ターゲット: [ 任意のトリプル ] ミスでスコア半減！' },
+            { round: 7, label: '20', type: 'NUMBER', num: 20, desc: 'R7ターゲット: [ 20 ] 1本も入らないとスコア半減！' },
+            { round: 8, label: 'BULL', type: 'BULL', num: 25, desc: '最終R8ターゲット: [ BULL ] ミスでスコア半減！' }
+        ];
+
+        function isCpuMatch() {
+            return GameState.mode === 'VS_CPU' || GameState.mode === 'BOSS';
+        }
+
+        function isZeroOneRules() {
+            return (
+                GameState.mode === '01' ||
+                (GameState.mode === 'VS_CPU' && (GameState.cpuGameType === '501' || GameState.cpuGameType === '701')) ||
+                (GameState.mode === 'BOSS' && (GameState.bossGameType === '501' || GameState.bossGameType === '301'))
+            );
+        }
+
+        function isCricketRules() {
+            return (
+                GameState.mode === 'CRICKET' ||
+                (GameState.mode === 'VS_CPU' && GameState.cpuGameType === 'CRICKET') ||
+                (GameState.mode === 'BOSS' && GameState.bossGameType === 'CRICKET')
+            );
+        }
+
+        function getActive01StartScore() {
+            if (GameState.mode === 'VS_CPU') return GameState.cpuGameType === '701' ? 701 : 501;
+            if (GameState.mode === 'BOSS') return GameState.bossGameType === '301' ? 301 : 501;
+            return GameState.zeroOneType || 501;
+        }
+
+        function getActiveCpuProfile() {
+            if (GameState.mode === 'BOSS') {
+                const boss = BOSS_STAGES[Math.min(BOSS_STAGES.length - 1, GameState.bossStage - 1)];
+                return CPU_PROFILES[boss.cpuLevel] || CPU_PROFILES[1];
+            }
+            return CPU_PROFILES[GameState.cpuLevel] || CPU_PROFILES[0];
+        }
 
         function isPossibleCheckout(rem, outRule) {
             if (rem < 2) return false;
@@ -1291,12 +1469,12 @@
                 else if (ppr >= 85) { fl = 'AA'; rt = 13; title = '絶対王者'; }
                 else if (ppr >= 65) { fl = 'A'; rt = 10; title = 'Aフラ達成者'; }
                 else if (ppr >= 40) { fl = 'B'; rt = 6; title = 'マイダーツ購入検討'; }
-            } else if (gameMode === '501' || gameMode === '701') {
+            } else if (isZeroOneRules()) {
                 if (ppr >= 120) { fl = 'SA'; rt = 18; title = '神の右腕'; }
                 else if (ppr >= 95) { fl = 'AA'; rt = 13; title = '絶対王者'; }
                 else if (ppr >= 75) { fl = 'A'; rt = 10; title = 'Aフラ達成者'; }
                 else if (ppr >= 50) { fl = 'B'; rt = 6; title = 'マイダーツ購入検討'; }
-            } else if (gameMode === 'CRICKET') {
+            } else if (isCricketRules()) {
                 let mpr = GameState.totalDartsThrown > 0 ? (GameState.cricketTotalMarks / GameState.totalDartsThrown) * 3 : 0;
                 if (mpr >= 4.2) { fl = 'SA'; rt = 18; title = 'クリケットマスター'; }
                 else if (mpr >= 3.3) { fl = 'AA'; rt = 14; title = '陣取りの覇者'; }
@@ -1311,6 +1489,13 @@
         // ==========================================
         const GameState = {
             mode: 'BULL_RUSH',
+            zeroOneType: 501,
+            cpuGameType: '501',
+            cpuBattleLevel: 2,
+            bossStage: 1,
+            bossGameType: '501',
+            partyType: 'HALF_IT',
+            halfItRoundTargetHits: 0,
             controlScheme: 'SWIPE',
             outRule: 'MASTER',
             bullRule: 'FAT',
@@ -1375,7 +1560,6 @@
             timingPhase: 'HORIZONTAL',
             timingX: 0,
             timingY: 0,
-            timingSpeed: 2.3,
 
             flyingDart: null,
             landedDarts: [],
@@ -1389,25 +1573,37 @@
         const PersistentStats = {
             highBullRush: 0,
             highCountUp: 0,
+            highHalfIt: 0,
+            highEaglesEye: 0,
+            bossBestStage: 1,
             cpuWins: 0,
-            matchWins: 0,
-            cricketWins: 0,
             checkoutClears: 0,
             totalBulls: 0,
+            totalAwards: 0,
             selectedSkin: 'CYBER_NEON',
             unlockedSkins: ['CYBER_NEON'],
+            selectedTrail: 'CYBER_CYAN',
+            unlockedTrails: ['CYBER_CYAN'],
             selectedBgmIndex: 0,
             load() {
                 try {
-                    const r = localStorage.getItem('neo_darts_v2');
+                    const r = localStorage.getItem('neo_darts_v3') || localStorage.getItem('neo_darts_v2');
                     if (r) {
                         const parsed = JSON.parse(r);
                         Object.assign(this, parsed);
                         if (typeof this.cpuWins !== 'number') this.cpuWins = 0;
+                        if (typeof this.totalAwards !== 'number') this.totalAwards = 0;
+                        if (typeof this.bossBestStage !== 'number') this.bossBestStage = parsed.bestSurvivalStage || 1;
+                        if (typeof this.highHalfIt !== 'number') this.highHalfIt = 0;
+                        if (typeof this.highEaglesEye !== 'number') this.highEaglesEye = 0;
                         if (!Array.isArray(this.unlockedSkins)) this.unlockedSkins = ['CYBER_NEON'];
+                        if (!Array.isArray(this.unlockedTrails)) this.unlockedTrails = ['CYBER_CYAN'];
                         this.syncUnlocks(true);
                         if (!BOARD_SKINS[this.selectedSkin] || !this.unlockedSkins.includes(this.selectedSkin)) {
                             this.selectedSkin = 'CYBER_NEON';
+                        }
+                        if (!DART_TRAILS[this.selectedTrail] || !this.unlockedTrails.includes(this.selectedTrail)) {
+                            this.selectedTrail = 'CYBER_CYAN';
                         }
                         if (typeof this.selectedBgmIndex !== 'number' || !SoundEngine.isTrackUnlocked(this.selectedBgmIndex)) {
                             this.selectedBgmIndex = 0;
@@ -1418,7 +1614,7 @@
             },
             save() {
                 try {
-                    localStorage.setItem('neo_darts_v2', JSON.stringify(this));
+                    localStorage.setItem('neo_darts_v3', JSON.stringify(this));
                 } catch (e) {}
             },
             syncUnlocks(silent = false) {
@@ -1426,22 +1622,32 @@
                 Object.values(BOARD_SKINS).forEach(skin => {
                     if (this.totalBulls >= skin.requiredBulls && !this.unlockedSkins.includes(skin.id)) {
                         this.unlockedSkins.push(skin.id);
-                        newlyUnlocked = skin;
+                        newlyUnlocked = `🎨 新テーマ解放: ${skin.name}！`;
+                    }
+                });
+                Object.values(DART_TRAILS).forEach(trail => {
+                    if ((this.totalAwards || 0) >= trail.requiredAwards && !this.unlockedTrails.includes(trail.id)) {
+                        this.unlockedTrails.push(trail.id);
+                        newlyUnlocked = `✈️ 新フライト解放: ${trail.name}！`;
                     }
                 });
                 if (newlyUnlocked && !silent) {
                     this.save();
                     const badge = document.getElementById('skinNewBadge');
                     if (badge) badge.classList.remove('hidden');
-                    showToast(`🎨 新テーマ解放: ${newlyUnlocked.name}！`);
+                    showToast(newlyUnlocked);
                 }
+            },
+            recordAwardEarned() {
+                this.totalAwards = (this.totalAwards || 0) + 1;
+                this.syncUnlocks(false);
+                this.save();
             },
             recordCpuWin() {
                 const prevWins = this.cpuWins || 0;
                 this.cpuWins = prevWins + 1;
                 this.save();
 
-                // 5勝・10勝到達時のBGM解放チェック
                 let unlockedTrack = null;
                 SoundEngine.tracks.forEach(tr => {
                     if (tr.requiredCpuWins > 0 && prevWins < tr.requiredCpuWins && this.cpuWins >= tr.requiredCpuWins) {
@@ -1488,7 +1694,7 @@
         }
 
         // ==========================================
-        // キャンバスサイズ管理＆盤面描画保証（VER 2.4.0 強化版）
+        // キャンバスサイズ管理＆盤面描画保証
         // ==========================================
         const canvas = document.getElementById('dartCanvas');
         const ctx = canvas.getContext('2d');
@@ -1502,7 +1708,6 @@
             if (!container) return;
             const rect = container.getBoundingClientRect();
 
-            // rect が 0 に潰れた場合でも必ずフォールバック寸法を確保
             const fallbackW = container.clientWidth || Math.min(window.innerWidth, 512) || 360;
             const fallbackH = container.clientHeight || Math.max(240, window.innerHeight - 190) || 360;
 
@@ -1521,7 +1726,7 @@
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
             boardCenter = { x: logicalW / 2, y: logicalH / 2 };
-            boardRadius = Math.max(80, Math.min(logicalW, logicalH) * 0.46);
+            boardRadius = Math.max(85, Math.min(logicalW, logicalH) * 0.47);
 
             if (prevRadius > 0 && prevCenter.x > 0) {
                 const scale = boardRadius / prevRadius;
@@ -1649,18 +1854,28 @@
         }
 
         // ==========================================
-        // 3LEG / 5LEG マッチ進行・決着判定システム
+        // 3LEG / 5LEG ＆ BOSS サバイバル進行判定
         // ==========================================
         function getLegsNeededToWin() {
-            return Math.ceil(GameState.legFormat / 2);
+            return GameState.mode === 'BOSS' ? 1 : Math.ceil(GameState.legFormat / 2);
         }
 
         function isLegModeSupported() {
-            return (GameState.mode === '501' || GameState.mode === '701' || GameState.mode === 'CRICKET');
+            return (GameState.mode === '01' || GameState.mode === 'CRICKET' || GameState.mode === 'VS_CPU');
+        }
+
+        function getActiveCpuLevelForMode() {
+            if (GameState.mode === 'VS_CPU') return GameState.cpuBattleLevel;
+            if (GameState.mode === 'BOSS') {
+                const boss = BOSS_STAGES[Math.min(BOSS_STAGES.length - 1, GameState.bossStage - 1)];
+                return boss ? boss.cpuLevel : 1;
+            }
+            return 0;
         }
 
         function initNextLegState() {
             clearAllRoundTimers();
+            GameState.cpuLevel = getActiveCpuLevelForMode();
             GameState.round = 1;
             GameState.dartIndex = 0;
             GameState.roundHits = [];
@@ -1675,13 +1890,11 @@
             GameState.flyingDart = null;
             GameState.timingPhase = 'HORIZONTAL';
 
-            if (GameState.mode === '501') {
-                GameState.checkoutStartScore = GameState.checkoutRemaining = 501;
-                GameState.cpuCheckoutStartScore = GameState.cpuCheckoutRemaining = 501;
-            } else if (GameState.mode === '701') {
-                GameState.checkoutStartScore = GameState.checkoutRemaining = 701;
-                GameState.cpuCheckoutStartScore = GameState.cpuCheckoutRemaining = 701;
-            } else if (GameState.mode === 'CRICKET') {
+            if (isZeroOneRules()) {
+                const startScore = getActive01StartScore();
+                GameState.checkoutStartScore = GameState.checkoutRemaining = startScore;
+                GameState.cpuCheckoutStartScore = GameState.cpuCheckoutRemaining = startScore;
+            } else if (isCricketRules()) {
                 GameState.score = 0;
                 GameState.cpuScore = 0;
                 GameState.cricketPlayerMarks = { 20: 0, 19: 0, 18: 0, 17: 0, 16: 0, 15: 0, 25: 0 };
@@ -1696,21 +1909,72 @@
             }
         }
 
-        function handleLegFinished(winner, reasonText = '') {
+        function handleLegFinished(winner) {
             clearAllRoundTimers();
             GameState.isRoundTransitioning = true;
             GameState.isCpuTurn = false;
 
+            if (GameState.mode === 'BOSS') {
+                const boss = BOSS_STAGES[Math.min(BOSS_STAGES.length - 1, GameState.bossStage - 1)];
+                if (winner === 'PLAYER') {
+                    PersistentStats.recordCpuWin();
+                    if (GameState.bossStage >= PersistentStats.bossBestStage) {
+                        PersistentStats.bossBestStage = Math.min(5, GameState.bossStage + 1);
+                    }
+                    PersistentStats.save();
+
+                    if (GameState.bossStage >= 5) {
+                        GameState.matchWinner = 'PLAYER';
+                        GameState.awardsEarned.push('BOSS RUSH CLEAR');
+                        PersistentStats.recordAwardEarned();
+                        SoundEngine.playFanfare();
+                        VoiceAnnouncer.speak("Omega Overlord defeated! You are the Survival Champion!", true);
+                        triggerAwardBanner('SURVIVAL CHAMPION!!', '全5ステージのAIボスを完全制覇！！', true);
+                        GameState.roundTimer = setTimeout(() => {
+                            finishGame();
+                        }, 2100);
+                        return;
+                    } else {
+                        const clearedStage = GameState.bossStage;
+                        GameState.bossStage++;
+                        const nextBoss = BOSS_STAGES[GameState.bossStage - 1];
+                        SoundEngine.playLegWin();
+                        if (GameState.bossStage === 5) {
+                            VoiceAnnouncer.speak("Warning! Final Boss, Omega Overlord!", true);
+                        } else {
+                            VoiceAnnouncer.speak(`Stage ${clearedStage} Clear! Next Boss, ${nextBoss.name}!`, true);
+                        }
+                        triggerAwardBanner(
+                            GameState.bossStage === 5 ? `⚠️ WARNING: FINAL BOSS!!` : `STAGE ${clearedStage} CLEAR!!`,
+                            `NEXT ➔ ${nextBoss.title}`,
+                            GameState.bossStage === 5
+                        );
+                        GameState.roundTimer = setTimeout(() => {
+                            GameState.roundTimer = null;
+                            if (GameState.isGameOver) return;
+                            initNextLegState();
+                        }, 2000);
+                        return;
+                    }
+                } else {
+                    GameState.matchWinner = 'CPU';
+                    SoundEngine.playBust();
+                    VoiceAnnouncer.speak("Game Over! Defeated by Boss!", true);
+                    triggerAwardBanner(`DEFEATED AT STAGE ${GameState.bossStage}...`, `${boss.name} [${boss.rank}] に敗北`);
+                    GameState.roundTimer = setTimeout(() => {
+                        finishGame();
+                    }, 1900);
+                    return;
+                }
+            }
+
             if (winner === 'PLAYER') {
                 GameState.playerLegsWon++;
-                if (GameState.mode === 'CRICKET') PersistentStats.cricketWins++;
-                PersistentStats.save();
             } else if (winner === 'CPU') {
                 GameState.cpuLegsWon++;
             }
 
             updateHUD();
-
             const legsNeeded = getLegsNeededToWin();
 
             if (
@@ -1722,6 +1986,12 @@
                 if (GameState.playerLegsWon > GameState.cpuLegsWon) GameState.matchWinner = 'PLAYER';
                 else if (GameState.cpuLegsWon > GameState.playerLegsWon) GameState.matchWinner = 'CPU';
                 else GameState.matchWinner = 'DRAW';
+
+                if (GameState.matchWinner === 'PLAYER') {
+                    VoiceAnnouncer.speak("Game Shot! Match Won!", true);
+                } else if (GameState.matchWinner === 'CPU') {
+                    VoiceAnnouncer.speak("Match Lost!", true);
+                }
 
                 if (GameState.legFormat > 1) {
                     const isPlayerWin = GameState.matchWinner === 'PLAYER';
@@ -1764,42 +2034,49 @@
         // ==========================================
         // 単発ヒット（INNER BULL / SINGLE BULL / TRIPLE 20）高速カットイン演出
         // ==========================================
-        let quickCutInTimer = null;
+        let quickHitTimer = null;
         function triggerSingleHitCutIn(hit) {
             if (!hit) return;
-            let main = null, sub = null, borderCol = '', iconClass = '', flashCol = '';
+            let main = null, sub = null, borderCol = '', iconClass = '', flashCol = '', voiceLine = null;
             if (hit.isInnerBull) {
                 main = 'INNER BULL!!';
                 sub = 'CRITICAL CENTER HIT';
                 borderCol = 'border-amber-400 shadow-[0_0_25px_rgba(255,215,0,0.75)]';
                 iconClass = 'fa-solid fa-fire text-amber-400 text-sm';
                 flashCol = 'rgba(255, 215, 0, 0.35)';
+                voiceLine = 'Bullseye!';
             } else if (hit.isBull) {
                 main = 'SINGLE BULL!';
                 sub = 'BULLSEYE HIT';
                 borderCol = 'border-cyan-400 shadow-[0_0_22px_rgba(0,243,255,0.65)]';
                 iconClass = 'fa-solid fa-bullseye text-cyan-400 text-sm';
                 flashCol = 'rgba(0, 243, 255, 0.28)';
+                voiceLine = 'Single Bull!';
             } else if (hit.base === 20 && hit.multiplier === 3) {
                 main = 'TRIPLE 20!!';
                 sub = 'MAX SEGMENT 60PTS';
                 borderCol = 'border-fuchsia-400 shadow-[0_0_24px_rgba(255,0,127,0.7)]';
                 iconClass = 'fa-solid fa-bolt text-fuchsia-400 text-sm';
                 flashCol = 'rgba(255, 0, 127, 0.3)';
+                voiceLine = 'Triple Twenty!';
             } else {
                 return;
+            }
+
+            if (voiceLine && GameState.dartIndex < 2) {
+                VoiceAnnouncer.speak(voiceLine, false);
             }
 
             GameState.boardFlashColor = flashCol;
             GameState.boardFlashAlpha = 1.0;
 
-            const overlay = document.getElementById('quickCutInOverlay');
-            const box = document.getElementById('quickCutInBox');
+            const overlay = document.getElementById('quickHitBanner');
+            const box = document.getElementById('quickHitBox');
             if (!overlay || !box) return;
 
-            document.getElementById('quickCutInMain').textContent = main;
-            document.getElementById('quickCutInSub').textContent = sub;
-            document.getElementById('quickCutInIcon').className = iconClass;
+            document.getElementById('quickHitMain').textContent = main;
+            document.getElementById('quickHitSub').textContent = sub;
+            document.getElementById('quickHitIcon').className = iconClass;
             box.className = `px-4 py-1 rounded-xl bg-slate-950/90 border-y-2 ${borderCol} flex items-center gap-2`;
 
             overlay.classList.remove('hidden');
@@ -1807,8 +2084,8 @@
             void box.offsetWidth;
             box.classList.add('quick-cutin-anim');
 
-            clearTimeout(quickCutInTimer);
-            quickCutInTimer = setTimeout(() => {
+            clearTimeout(quickHitTimer);
+            quickHitTimer = setTimeout(() => {
                 overlay.classList.add('hidden');
             }, 640);
         }
@@ -1848,8 +2125,8 @@
                 GameState.landedDarts.push({ x, y, color: dartColors[GameState.dartIndex % 3] });
 
                 if (GameState.isCpuTurn) {
-                    if (GameState.mode === '501' || GameState.mode === '701') handleCpu01Hit(hit, x, y);
-                    else if (GameState.mode === 'CRICKET') handleCpuCricketHit(hit, x, y);
+                    if (isZeroOneRules()) handleCpu01Hit(hit, x, y);
+                    else if (isCricketRules()) handleCpuCricketHit(hit, x, y);
                     updateHUD();
                     return;
                 }
@@ -1862,13 +2139,21 @@
                     triggerSingleHitCutIn(hit);
                 }
 
+                const activeTrail = DART_TRAILS[PersistentStats.selectedTrail] || DART_TRAILS.CYBER_CYAN;
+                if (activeTrail.id !== 'CYBER_CYAN') {
+                    for (let i = 0; i < 6; i++) {
+                        const col = activeTrail.trailColors[i % activeTrail.trailColors.length];
+                        spawnImpactParticles(x, y, col);
+                    }
+                }
+
                 if (GameState.mode === 'BULL_RUSH') handleBullRushHit(hit, x, y, isSecret);
                 else if (GameState.mode === 'COUNT_UP') handleCountUpHit(hit, x, y, isSecret);
-                else if (GameState.mode === '501' || GameState.mode === '701') handle01Hit(hit, x, y, isSecret);
-                else if (GameState.mode === 'CRICKET') handleCricketHit(hit, x, y, isSecret);
+                else if (isZeroOneRules()) handle01Hit(hit, x, y, isSecret);
+                else if (isCricketRules()) handleCricketHit(hit, x, y, isSecret);
+                else if (GameState.mode === 'PARTY') handlePartyHit(hit, x, y, isSecret);
                 else if (GameState.mode === 'CHECKOUT') handleCheckoutHit(hit, x, y, isSecret);
             } catch (err) {
-                console.error('onDartLanded error:', err);
                 GameState.isRoundTransitioning = false;
                 if (GameState.dartIndex >= 3) {
                     GameState.dartIndex = 0;
@@ -1994,7 +2279,7 @@
         }
 
         // ==========================================
-        // 01モード（501 / 701）ラウンド進行＆ヒット処理
+        // 01モード（501 / 701 / 301）処理
         // ==========================================
         function evaluate01RoundLimitWinner() {
             if (GameState.cpuLevel > 0) {
@@ -2042,7 +2327,7 @@
                 }
 
                 if (GameState.round >= GameState.maxRounds) {
-                    handleLegFinished(evaluate01RoundLimitWinner(), 'ROUND LIMIT');
+                    handleLegFinished(evaluate01RoundLimitWinner());
                     return;
                 }
                 GameState.round++;
@@ -2095,6 +2380,7 @@
 
             if (newRem < 0 || leavesOne || (newRem === 0 && !valid)) {
                 SoundEngine.playBust();
+                VoiceAnnouncer.speak("Bust!", true);
                 spawnFloatingText(x, y, 'BUST!', '#ef4444', 20);
                 triggerAwardBanner('BUST!!', '残りスコアリセット');
                 GameState.checkoutRemaining = GameState.checkoutStartScore;
@@ -2111,22 +2397,23 @@
                 spawnFloatingText(x, y, `CLEAR!`, '#ffd700', 20);
                 GameState.awardsEarned.push(`GAME SHOT`);
                 let isPerfect = false;
-                if (GameState.mode === '501' && GameState.legDartsThrown === 9) {
+                const active01Target = getActive01StartScore();
+                if (active01Target === 501 && GameState.legDartsThrown === 9) {
                     triggerAwardBanner("9 DARTS!!", "PERFECT LEG!");
                     GameState.awardsEarned.push("9 DARTS");
                     isPerfect = true;
-                } else if (GameState.mode === '701' && GameState.legDartsThrown === 12) {
+                } else if (active01Target === 701 && GameState.legDartsThrown === 12) {
                     triggerAwardBanner("12 DARTS!!", "PERFECT LEG!");
                     GameState.awardsEarned.push("12 DARTS");
                     isPerfect = true;
                 }
                 if (isPerfect) { SoundEngine.playFanfare(); triggerPerfectEffect(); }
-                else if (GameState.legFormat === 1) {
+                else if (GameState.legFormat === 1 && GameState.mode !== 'BOSS') {
                     SoundEngine.playAward();
                     triggerAwardBanner(`GAME SHOT!`, `YOU WIN (${GameState.outRule} OUT)!`);
                 }
                 GameState.dartIndex = 3;
-                handleLegFinished('PLAYER', 'CHECKOUT');
+                handleLegFinished('PLAYER');
                 return;
             }
             if (hit.isBull) SoundEngine.playBull(hit.isInnerBull);
@@ -2206,12 +2493,12 @@
             GameState.dartIndex++;
 
             if (isAllCricketClosed(GameState.cricketPlayerMarks) && (GameState.cpuLevel === 0 || GameState.score >= GameState.cpuScore)) {
-                if (GameState.legFormat === 1) {
+                if (GameState.legFormat === 1 && GameState.mode !== 'BOSS') {
                     SoundEngine.playAward();
                     triggerAwardBanner('CRICKET WIN!!', '全陣地制圧！');
                 }
                 GameState.dartIndex = 3;
-                handleLegFinished('PLAYER', 'CLOSED');
+                handleLegFinished('PLAYER');
                 return;
             }
 
@@ -2250,7 +2537,7 @@
                 }
 
                 if (GameState.round >= GameState.maxRounds) {
-                    handleLegFinished(evaluateCricketRoundLimitWinner(), 'ROUND LIMIT');
+                    handleLegFinished(evaluateCricketRoundLimitWinner());
                     return;
                 }
                 GameState.round++;
@@ -2266,8 +2553,8 @@
         // VS CPU AI ターンのシミュレーション処理
         // ==========================================
         function chooseCpuTarget() {
-            const prof = CPU_PROFILES[GameState.cpuLevel] || CPU_PROFILES[1];
-            if (GameState.mode === '501' || GameState.mode === '701') {
+            const prof = getActiveCpuProfile();
+            if (isZeroOneRules()) {
                 const rem = GameState.cpuCheckoutRemaining;
                 if (rem === 50) return getSegmentCoords(25, 'INNER_BULL');
                 if (rem <= 40 && rem % 2 === 0) return getSegmentCoords(rem / 2, 'DOUBLE');
@@ -2277,7 +2564,7 @@
                     return getSegmentCoords(20, 'TRIPLE');
                 }
                 return getSegmentCoords(Math.min(20, Math.max(1, Math.floor(rem / 2))), 'SINGLE');
-            } else if (GameState.mode === 'CRICKET') {
+            } else if (isCricketRules()) {
                 for (const t of CRICKET_TARGETS) {
                     if (GameState.cricketCpuMarks[t] < 3) {
                         return getSegmentCoords(t, t === 25 ? 'INNER_BULL' : 'TRIPLE');
@@ -2302,7 +2589,7 @@
             GameState.landedDarts = [];
             updateHUD();
 
-            const prof = CPU_PROFILES[GameState.cpuLevel] || CPU_PROFILES[1];
+            const prof = getActiveCpuProfile();
 
             for (let i = 0; i < 3; i++) {
                 const timer = setTimeout(() => {
@@ -2337,8 +2624,8 @@
                 const cpuWentFirst = (GameState.cpuLevel > 0 && GameState.currentLeg % 2 === 0);
                 if (!cpuWentFirst) {
                     if (GameState.round >= GameState.maxRounds) {
-                        const winner = (GameState.mode === 'CRICKET') ? evaluateCricketRoundLimitWinner() : evaluate01RoundLimitWinner();
-                        handleLegFinished(winner, 'ROUND LIMIT');
+                        const winner = isCricketRules() ? evaluateCricketRoundLimitWinner() : evaluate01RoundLimitWinner();
+                        handleLegFinished(winner);
                         return;
                     }
                     GameState.round++;
@@ -2381,11 +2668,11 @@
             GameState.dartIndex++;
 
             if (newRem === 0) {
-                if (GameState.legFormat === 1) {
+                if (GameState.legFormat === 1 && GameState.mode !== 'BOSS') {
                     SoundEngine.playBust();
                     triggerAwardBanner('CPU WIN...', 'CPUが先にフィニッシュ！');
                 }
-                handleLegFinished('CPU', 'CHECKOUT');
+                handleLegFinished('CPU');
                 return;
             }
             if (GameState.dartIndex >= 3) endCpuTurn();
@@ -2427,14 +2714,144 @@
             GameState.dartIndex++;
 
             if (isAllCricketClosed(GameState.cricketCpuMarks) && GameState.cpuScore >= GameState.score) {
-                if (GameState.legFormat === 1) {
+                if (GameState.legFormat === 1 && GameState.mode !== 'BOSS') {
                     SoundEngine.playBust();
                     triggerAwardBanner('CPU WIN...', 'CPUに陣地を制圧された！');
                 }
-                handleLegFinished('CPU', 'CLOSED');
+                handleLegFinished('CPU');
                 return;
             }
             if (GameState.dartIndex >= 3) endCpuTurn();
+        }
+
+        // ==========================================
+        // PARTY モード（HALF-IT & EAGLE'S EYE）処理
+        // ==========================================
+        function getCurrentHalfItSpec() {
+            return HALF_IT_ROUNDS[Math.min(HALF_IT_ROUNDS.length - 1, GameState.round - 1)];
+        }
+
+        function isHalfItTargetHit(hit, spec) {
+            if (!hit || hit.isOutBoard || !spec) return false;
+            if (spec.type === 'NUMBER') return !hit.isBull && hit.base === spec.num;
+            if (spec.type === 'DOUBLE') return (hit.multiplier === 2 && !hit.isBull) || hit.isInnerBull;
+            if (spec.type === 'TRIPLE') return hit.multiplier === 3 && !hit.isBull;
+            if (spec.type === 'BULL') return hit.isBull;
+            return false;
+        }
+
+        function handlePartyHit(hit, x, y, isSecret) {
+            const sm = GameState.secretMultiplier;
+            if (GameState.partyType === 'EAGLES_EYE') {
+                if (hit.isBull) {
+                    GameState.combo++;
+                    GameState.maxCombo = Math.max(GameState.maxCombo, GameState.combo);
+                    if (hit.isInnerBull) GameState.innerBullCount++;
+                    registerBullHit();
+                    const pts = (hit.isInnerBull ? 50 : 25) * sm;
+                    GameState.score += pts;
+                    GameState.totalPointsEarned += pts;
+                    SoundEngine.playBull(hit.isInnerBull);
+                    spawnImpactParticles(x, y, hit.isInnerBull ? '#ffd700' : '#00f3ff');
+                    spawnFloatingText(x, y, `${hit.label}! +${pts}`, hit.isInnerBull ? '#ffd700' : '#00f3ff', 20);
+                    GameState.roundHits.push({ ...hit, points: pts });
+                } else {
+                    GameState.combo = 0;
+                    if (!isSecret) {
+                        SoundEngine.playOutBoard();
+                        spawnFloatingText(x, y, `NON-BULL (0)`, '#64748b');
+                    }
+                    GameState.roundHits.push({ ...hit, points: 0 });
+                }
+                GameState.dartIndex++;
+                if (GameState.dartIndex >= 3) {
+                    finishPartyRound(false);
+                }
+                return;
+            }
+
+            const spec = getCurrentHalfItSpec();
+            const matched = isHalfItTargetHit(hit, spec);
+            if (matched) {
+                GameState.halfItRoundTargetHits++;
+                GameState.combo++;
+                GameState.maxCombo = Math.max(GameState.maxCombo, GameState.combo);
+                if (hit.isBull) {
+                    if (hit.isInnerBull) GameState.innerBullCount++;
+                    registerBullHit();
+                    SoundEngine.playBull(hit.isInnerBull);
+                } else {
+                    SoundEngine.playSegmentHit(hit.multiplier, hit.base);
+                }
+                const rawPts = hit.isBull ? (hit.isInnerBull ? 50 : 25) : hit.points;
+                const gained = rawPts * sm;
+                GameState.score += gained;
+                GameState.totalPointsEarned += gained;
+                spawnImpactParticles(x, y, '#fb923c');
+                spawnFloatingText(x, y, `TARGET HIT! +${gained}`, '#fbbf24', 19);
+                GameState.roundHits.push({ ...hit, points: gained });
+            } else {
+                GameState.combo = 0;
+                if (!isSecret) {
+                    SoundEngine.playOutBoard();
+                    spawnFloatingText(x, y, `MISS (${spec.label} ONLY)`, '#94a3b8');
+                }
+                GameState.roundHits.push({ ...hit, points: 0 });
+            }
+
+            GameState.dartIndex++;
+            if (GameState.dartIndex >= 3) {
+                const isHalved = (GameState.halfItRoundTargetHits === 0);
+                finishPartyRound(isHalved);
+            }
+        }
+
+        function finishPartyRound(isHalved) {
+            GameState.isRoundTransitioning = true;
+            if (isHalved && GameState.partyType === 'HALF_IT') {
+                const oldScore = GameState.score;
+                GameState.score = Math.ceil(GameState.score / 2);
+                SoundEngine.playBust();
+                VoiceAnnouncer.speak("Halved!", true);
+                GameState.boardFlashColor = 'rgba(239, 68, 68, 0.45)';
+                GameState.boardFlashAlpha = 1.0;
+                triggerAwardBanner('HALVED!! (スコア半減)', `${oldScore} ➔ ${GameState.score} PTS`);
+            } else {
+                evaluateRoundAwards(GameState.roundHits);
+            }
+
+            clearTimeout(GameState.roundTimer);
+            GameState.roundTimer = setTimeout(() => {
+                GameState.roundTimer = null;
+                if (GameState.isGameOver) {
+                    GameState.isRoundTransitioning = false;
+                    return;
+                }
+                const hadSecret = GameState.secretTriggeredThisRound;
+                if (hadSecret) {
+                    GameState.secretMultiplier = GameState.pendingSecretMultiplier;
+                    GameState.pendingSecretMultiplier = 1;
+                } else {
+                    GameState.secretMultiplier = 1;
+                    GameState.pendingSecretMultiplier = 1;
+                }
+                GameState.secretStep = 0;
+                GameState.secretTriggeredThisRound = false;
+                GameState.roundHits = [];
+                GameState.dartIndex = 0;
+                GameState.halfItRoundTargetHits = 0;
+                GameState.landedDarts = [];
+                GameState.isRoundTransitioning = false;
+
+                if (GameState.round >= GameState.maxRounds && !hadSecret) {
+                    finishGame();
+                    return;
+                }
+                if (GameState.round < GameState.maxRounds) {
+                    GameState.round++;
+                }
+                updateHUD();
+            }, isHalved ? 1350 : 680);
         }
 
         // ==========================================
@@ -2458,6 +2875,7 @@
 
             if (newRem < 0 || leavesOne || (newRem === 0 && !valid)) {
                 SoundEngine.playBust();
+                VoiceAnnouncer.speak("Bust!", true);
                 spawnFloatingText(x, y, 'BUST!', '#ef4444', 20);
                 triggerAwardBanner('BUST!!', '残りスコアリセット');
                 GameState.checkoutRemaining = GameState.checkoutStartScore;
@@ -2483,9 +2901,12 @@
                 const stagePts = (GameState.checkoutStartScore * 10 + (3 - GameState.dartIndex) * 150 + bonus) * GameState.secretMultiplier;
                 GameState.score += stagePts;
                 GameState.combo++;
+                GameState.maxCombo = Math.max(GameState.maxCombo, GameState.combo);
                 SoundEngine.playAward();
+                VoiceAnnouncer.speak("Game Shot!", true);
                 spawnFloatingText(x, y, `CLEAR! +${stagePts}`, '#ffd700', 20);
                 GameState.awardsEarned.push(`STAGE ${GameState.checkoutStage}`);
+                PersistentStats.recordAwardEarned();
                 triggerAwardBanner(`NICE ${GameState.outRule} OUT!`, `+${stagePts} PTS`);
                 GameState.secretMultiplier = GameState.pendingSecretMultiplier > 1 ? GameState.pendingSecretMultiplier : 1;
                 GameState.pendingSecretMultiplier = 1;
@@ -2531,23 +2952,24 @@
                 GameState.isRoundTransitioning = false;
                 spawnFloatingText(boardCenter.x, boardCenter.y, 'RETRY ROUND', '#f59e0b');
                 updateHUD();
-            }, 720);
+            }, 700);
         }
 
         // ==========================================
-        // ラウンドアワード判定（PHOENIX EYE 対応）
+        // ラウンドアワード判定（PHOENIX EYE ＆ 英語ボイス ＆ トレイル解放連動）
         // ==========================================
         function evaluateRoundAwards(hits) {
             if (hits.length < 3) return;
             const allInner = hits.every(h => h.isInnerBull);
             const allBulls = hits.every(h => h.isBull);
             const roundSum = hits.reduce((a, h) => a + h.points, 0);
-            let title = null, sub = null, isPhoenix = false;
+            let title = null, sub = null, isPhoenix = false, voiceCall = null;
 
             if (allInner) {
                 title = 'PHOENIX EYE!!';
                 sub = GameState.mode === 'BULL_RUSH' ? 'インブル3連発！ +5.0s EXTEND!!' : 'インブル3連発・伝説の眼！';
                 isPhoenix = true;
+                voiceCall = 'Phoenix Eye! Incredible!';
                 if (GameState.mode === 'BULL_RUSH' && !GameState.isGameOver) {
                     GameState.timeLeft += 5.0;
                     spawnFloatingText(boardCenter.x, boardCenter.y - 30, '+5.0s EXTEND!!', '#00ff88', 22);
@@ -2555,32 +2977,40 @@
             } else if (allBulls) {
                 title = 'HAT TRICK!!';
                 sub = 'ブル3連発';
+                voiceCall = 'Hat Trick!';
             } else if (hits.every(h => h.base === 20 && h.multiplier === 3)) {
                 title = 'TON 80!!';
                 sub = '20トリプル3発';
+                voiceCall = 'Ton Eighty!';
             } else if (
-                GameState.mode === 'CRICKET' &&
+                isCricketRules() &&
                 hits.every(h => h.multiplier === 3 && h.base >= 15 && h.base <= 20) &&
                 new Set(hits.map(h => h.base)).size === 3
             ) {
                 title = 'WHITE HORSE!!';
                 sub = 'クリケット3種トリプル達成！';
+                voiceCall = 'White Horse!';
             } else if (
                 hits.every(h => !h.isBull && !h.isOutBoard && h.multiplier >= 2) &&
                 new Set(hits.map(h => `${h.base}-${h.multiplier}`)).size === 1
             ) {
                 title = 'THREE IN A BED!!';
                 sub = `同一ベッド3連発 (${hits[0].label})`;
+                voiceCall = 'Three in a Bed!';
             } else if (roundSum >= 151) {
                 title = 'HIGH TON!!';
                 sub = `${roundSum} PTS`;
+                voiceCall = 'High Ton!';
             } else if (roundSum >= 100) {
                 title = 'LOW TON!';
                 sub = `${roundSum} PTS`;
+                voiceCall = 'Low Ton!';
             }
 
             if (title) {
                 GameState.awardsEarned.push(title.replace(/!/g, ''));
+                PersistentStats.recordAwardEarned();
+                if (voiceCall) VoiceAnnouncer.speak(voiceCall, true);
                 if (isPhoenix) {
                     SoundEngine.playPhoenixEye();
                     for (let i = 0; i < 30; i++) {
@@ -2714,7 +3144,7 @@
         canvas.addEventListener('touchend', e => { e.preventDefault(); handlePointerUp(); }, { passive: false });
 
         // ==========================================
-        // Canvas 描画（論理ピクセル統一＆着せ替えスキン＆ヒットフラッシュ）
+        // Canvas 描画（論理ピクセル統一＆着せ替えスキン＆カスタムフライト）
         // ==========================================
         function drawArcSegment(cx, cy, innerR, outerR, startAngle, endAngle, fill, wireColor) {
             ctx.beginPath();
@@ -2775,12 +3205,27 @@
                 if (GameState.mode === 'BULL_RUSH' && num === GameState.bonusNumber) {
                     drawArcSegment(cx, cy, R * RADII.INNER_SINGLE, R * RADII.TRIPLE_RING, s, e, `rgba(255,215,0,${0.35 + 0.25 * Math.sin(now * 0.008)})`, skin.wireStroke);
                 }
-                if (GameState.mode === 'CRICKET' && CRICKET_TARGETS.includes(num)) {
+                if (isCricketRules() && CRICKET_TARGETS.includes(num)) {
                     const pM = GameState.cricketPlayerMarks[num];
                     const cM = GameState.cricketCpuMarks[num];
                     const isDead = pM >= 3 && (GameState.cpuLevel === 0 || cM >= 3);
                     if (!isDead) {
                         drawArcSegment(cx, cy, R * RADII.INNER_SINGLE, R * RADII.TRIPLE_RING, s, e, 'rgba(16, 185, 129, 0.22)', skin.wireStroke);
+                    }
+                }
+                if (GameState.mode === 'PARTY') {
+                    if (GameState.partyType === 'EAGLES_EYE') {
+                        drawArcSegment(cx, cy, R * RADII.OUTER_BULL, R * RADII.DOUBLE_RING, s, e, 'rgba(2, 6, 23, 0.58)', skin.wireStroke);
+                    } else {
+                        const spec = getCurrentHalfItSpec();
+                        const pulse = 0.28 + 0.22 * Math.sin(now * 0.009);
+                        if (spec.type === 'NUMBER' && spec.num === num) {
+                            drawArcSegment(cx, cy, R * RADII.OUTER_BULL, R * RADII.DOUBLE_RING, s, e, `rgba(251, 146, 60, ${pulse})`, '#fb923c');
+                        } else if (spec.type === 'DOUBLE') {
+                            drawArcSegment(cx, cy, R * RADII.OUTER_SINGLE, R * RADII.DOUBLE_RING, s, e, `rgba(251, 191, 36, ${pulse})`, '#fbbf24');
+                        } else if (spec.type === 'TRIPLE') {
+                            drawArcSegment(cx, cy, R * RADII.INNER_SINGLE, R * RADII.TRIPLE_RING, s, e, `rgba(244, 63, 94, ${pulse})`, '#f43f5e');
+                        }
                     }
                 }
 
@@ -2802,7 +3247,7 @@
                 ctx.font = `800 ${Math.max(10, Math.round(R * 0.075))}px Orbitron`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                const isCricketNum = GameState.mode === 'CRICKET' && CRICKET_TARGETS.includes(num);
+                const isCricketNum = isCricketRules() && CRICKET_TARGETS.includes(num);
                 ctx.fillStyle = sec ? '#ffd700' : loc ? skin.crosshair : (GameState.mode === 'BULL_RUSH' && num === GameState.bonusNumber) ? '#ffd700' : isCricketNum ? '#34d399' : skin.numColor;
                 ctx.fillText(num, nx, ny);
             }
@@ -2823,6 +3268,17 @@
             ctx.lineWidth = 1.5;
             ctx.strokeStyle = skin.innerBullStroke;
             ctx.stroke();
+
+            // PARTY (EAGLE'S EYE または HALF-IT R8 BULL) 時のブル強調リング
+            if (GameState.mode === 'PARTY' && (GameState.partyType === 'EAGLES_EYE' || (GameState.partyType === 'HALF_IT' && getCurrentHalfItSpec().type === 'BULL'))) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(cx, cy, R * (RADII.OUTER_BULL + 0.025 + 0.01 * Math.sin(now * 0.01)), 0, Math.PI * 2);
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = '#ffd700';
+                ctx.stroke();
+                ctx.restore();
+            }
 
             // 刺さったダーツ描画
             for (const d of GameState.landedDarts) {
@@ -2847,7 +3303,8 @@
                     ctx.stroke();
                     ctx.beginPath(); ctx.arc(x, y, 2.2, 0, Math.PI * 2); ctx.fillStyle = skin.crosshairCenter; ctx.fill();
                 } else if (GameState.controlScheme === 'TIMING') {
-                    const tx = cx + GameState.timingX * R * 1.01, ty = cy + GameState.timingY * R * 1.01;
+                    const tx = cx + GameState.timingX * R * 1.01;
+                    const ty = cy + GameState.timingY * R * 1.01;
                     ctx.strokeStyle = GameState.timingPhase === 'HORIZONTAL' ? skin.crosshair : 'rgba(0,243,255,0.4)';
                     ctx.lineWidth = 2;
                     ctx.beginPath(); ctx.moveTo(tx, cy - R * 1.01); ctx.lineTo(tx, cy + R * 1.01); ctx.stroke();
@@ -2859,16 +3316,35 @@
                 }
             }
 
-            // 飛翔中ダーツ
+            // 飛翔中ダーツ（カスタムフライト形状＆カラー対応）
             if (GameState.flyingDart) {
                 const fd = GameState.flyingDart, t = fd.progress;
                 const curX = fd.startX + (fd.targetX - fd.startX) * t;
                 const curY = fd.startY + (fd.targetY - fd.startY) * t - Math.sin(t * Math.PI) * 50;
+                const trailSpec = DART_TRAILS[PersistentStats.selectedTrail] || DART_TRAILS.CYBER_CYAN;
                 ctx.save();
                 ctx.translate(curX, curY);
                 ctx.scale(2.2 - t * 1.2, 2.2 - t * 1.2);
-                ctx.fillStyle = GameState.isCpuTurn ? '#f43f5e' : skin.crosshair;
-                ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(-6, 8); ctx.lineTo(6, 8); ctx.fill();
+                if (GameState.isCpuTurn) {
+                    ctx.fillStyle = '#f43f5e';
+                    ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(-6, 8); ctx.lineTo(6, 8); ctx.fill();
+                } else if (trailSpec.wingStyle === 'FLAME') {
+                    ctx.fillStyle = '#ff4500';
+                    ctx.beginPath(); ctx.moveTo(0, -12); ctx.lineTo(-8, 6); ctx.lineTo(-3, 3); ctx.lineTo(0, 10); ctx.lineTo(3, 3); ctx.lineTo(8, 6); ctx.closePath(); ctx.fill();
+                    ctx.fillStyle = '#ffd700';
+                    ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(-4, 4); ctx.lineTo(4, 4); ctx.closePath(); ctx.fill();
+                } else if (trailSpec.wingStyle === 'BOLT') {
+                    ctx.fillStyle = '#fde047';
+                    ctx.beginPath(); ctx.moveTo(0, -13); ctx.lineTo(-9, 3); ctx.lineTo(-2, 4); ctx.lineTo(-5, 10); ctx.lineTo(9, 2); ctx.lineTo(2, 1); ctx.closePath(); ctx.fill();
+                } else if (trailSpec.wingStyle === 'STAR') {
+                    const hue = Math.floor((now * 0.4) % 360);
+                    ctx.fillStyle = `hsl(${hue}, 95%, 60%)`;
+                    ctx.beginPath(); ctx.moveTo(0, -12); ctx.lineTo(-8, 7); ctx.lineTo(0, 3); ctx.lineTo(8, 7); ctx.closePath(); ctx.fill();
+                    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1; ctx.stroke();
+                } else {
+                    ctx.fillStyle = trailSpec.primaryColor || skin.crosshair;
+                    ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(-6, 8); ctx.lineTo(6, 8); ctx.fill();
+                }
                 ctx.restore();
             }
 
@@ -2928,6 +3404,24 @@
             }
             if (GameState.flyingDart) {
                 GameState.flyingDart.progress += dt / GameState.flyingDart.duration;
+                if (!GameState.isCpuTurn) {
+                    const fd = GameState.flyingDart;
+                    const t = Math.min(1, fd.progress);
+                    const curX = fd.startX + (fd.targetX - fd.startX) * t;
+                    const curY = fd.startY + (fd.targetY - fd.startY) * t - Math.sin(t * Math.PI) * 50;
+                    const trailSpec = DART_TRAILS[PersistentStats.selectedTrail] || DART_TRAILS.CYBER_CYAN;
+                    const col = trailSpec.trailColors[Math.floor(Math.random() * trailSpec.trailColors.length)];
+                    GameState.particles.push({
+                        x: curX + (Math.random() - 0.5) * 6,
+                        y: curY + (Math.random() - 0.5) * 6,
+                        vx: (Math.random() - 0.5) * 2.2,
+                        vy: (Math.random() - 0.5) * 2.2 + 1.0,
+                        radius: trailSpec.id === 'CYBER_CYAN' ? 2.2 : 3.4,
+                        color: col,
+                        alpha: 0.9,
+                        decay: 0.07
+                    });
+                }
                 if (GameState.flyingDart.progress >= 1) {
                     const tx = GameState.flyingDart.targetX, ty = GameState.flyingDart.targetY;
                     GameState.flyingDart = null;
@@ -2975,13 +3469,13 @@
         function renderCricketBoardHUD() {
             const grid = document.getElementById('cricketGrid');
             grid.innerHTML = CRICKET_TARGETS.map(t => {
-                const label = t === 25 ? 'B' : t;
+                const label = t === 25 ? 'BULL' : t;
                 const pMarks = GameState.cricketPlayerMarks[t];
                 const cMarks = GameState.cricketCpuMarks[t];
                 const isClosedBoth = pMarks >= 3 && (GameState.cpuLevel === 0 || cMarks >= 3);
                 return `
                     <div class="rounded bg-slate-900/90 border ${isClosedBoth ? 'border-slate-800 opacity-45' : 'border-slate-700/80'} px-0.5 py-0.2 flex items-center justify-center gap-0.5">
-                        <span class="font-orbitron font-black text-[8px] ${isClosedBoth ? 'line-through text-slate-500' : 'text-slate-200'}">${label}</span>
+                        <span class="font-orbitron font-black text-[7px] ${isClosedBoth ? 'line-through text-slate-500' : 'text-slate-200'}">${label}</span>
                         <span class="text-[9px] font-orbitron leading-none">${getCricketMarkSymbol(pMarks)}</span>
                         ${GameState.cpuLevel > 0 ? `<span class="text-[8px] font-orbitron leading-none text-slate-500">|</span><span class="text-[9px] font-orbitron leading-none">${getCricketMarkSymbol(cMarks)}</span>` : ''}
                     </div>
@@ -3019,8 +3513,9 @@
         }
 
         function updateHUD() {
-            ['BULL_RUSH', 'COUNT_UP', '501', '701', 'CRICKET', 'CHECKOUT'].forEach(m => {
+            ['BULL_RUSH', 'COUNT_UP', '01', 'CRICKET', 'VS_CPU', 'BOSS', 'PARTY', 'CHECKOUT'].forEach(m => {
                 const btn = document.getElementById(`tab-${m}`);
+                if (!btn) return;
                 if (m === GameState.mode) {
                     btn.classList.add('border-cyan-400', 'bg-cyan-500/20', 'text-white');
                     btn.classList.remove('border-slate-800', 'bg-slate-900/80', 'text-slate-400');
@@ -3031,6 +3526,75 @@
             });
 
             const secB = GameState.secretMultiplier > 1 ? ` 🔥×${GameState.secretMultiplier}` : GameState.pendingSecretMultiplier > 1 ? ` (次R×${GameState.pendingSecretMultiplier})` : '';
+
+            const btn01Type = document.getElementById('btn01TypeToggle');
+            if (GameState.mode === '01') {
+                btn01Type.classList.remove('hidden');
+                btn01Type.textContent = `${GameState.zeroOneType}`;
+            } else {
+                btn01Type.classList.add('hidden');
+            }
+
+            const btnBossGame = document.getElementById('btnBossGameToggle');
+            if (GameState.mode === 'BOSS') {
+                btnBossGame.classList.remove('hidden');
+                btnBossGame.textContent = GameState.bossGameType === 'CRICKET' ? 'CRK' : GameState.bossGameType;
+            } else {
+                btnBossGame.classList.add('hidden');
+            }
+
+            const btnPartyType = document.getElementById('btnPartyTypeToggle');
+            if (GameState.mode === 'PARTY') {
+                btnPartyType.classList.remove('hidden');
+                btnPartyType.textContent = GameState.partyType === 'HALF_IT' ? 'HALF-IT' : "EAGLE'S EYE";
+            } else {
+                btnPartyType.classList.add('hidden');
+            }
+
+            const btnCpuGame = document.getElementById('btnCpuGameToggle');
+            const btnCpuLevel = document.getElementById('btnCpuLevelToggle');
+            const cpuScoreContainer = document.getElementById('cpuScoreContainer');
+            const turnBadge = document.getElementById('turnBadge');
+            const guideText = document.getElementById('throwGuideText');
+            const guideDot = document.getElementById('guideDot');
+
+            if (isCpuMatch()) {
+                if (GameState.mode === 'VS_CPU') {
+                    btnCpuGame.classList.remove('hidden');
+                    btnCpuGame.textContent = GameState.cpuGameType === 'CRICKET' ? 'CRK' : GameState.cpuGameType;
+                    btnCpuLevel.classList.remove('hidden');
+                    const prof = CPU_PROFILES[GameState.cpuBattleLevel] || CPU_PROFILES[2];
+                    btnCpuLevel.textContent = prof.short;
+                } else {
+                    btnCpuGame.classList.add('hidden');
+                    btnCpuLevel.classList.add('hidden');
+                }
+
+                const prof = getActiveCpuProfile();
+                cpuScoreContainer.classList.remove('hidden');
+                turnBadge.classList.remove('hidden');
+                document.getElementById('cpuScoreLabel').textContent = GameState.mode === 'BOSS' ? `BOSS S${GameState.bossStage}` : prof.short;
+                document.getElementById('cpuScoreDisplay').textContent = isCricketRules() ? formatScore(GameState.cpuScore) : formatScore(GameState.cpuCheckoutRemaining);
+
+                if (GameState.isCpuTurn) {
+                    turnBadge.textContent = GameState.mode === 'BOSS' ? 'BOSS TURN' : 'CPU TURN';
+                    turnBadge.className = 'text-[8px] font-orbitron font-black px-1 py-0.2 rounded bg-rose-500/25 text-rose-300 border border-rose-400/60 animate-pulse whitespace-nowrap';
+                    guideText.textContent = `${prof.label} が投擲中...`;
+                    guideDot.className = 'w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping flex-shrink-0';
+                } else {
+                    turnBadge.textContent = 'YOUR TURN';
+                    turnBadge.className = 'text-[8px] font-orbitron font-black px-1 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/50 whitespace-nowrap';
+                    guideText.textContent = GameState.controlScheme === 'SWIPE' ? '画面下部から上へスワイプで投擲！' : 'タップで横/縦レーザーを止めて投擲！';
+                    guideDot.className = 'w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping flex-shrink-0';
+                }
+            } else {
+                btnCpuGame.classList.add('hidden');
+                btnCpuLevel.classList.add('hidden');
+                cpuScoreContainer.classList.add('hidden');
+                turnBadge.classList.add('hidden');
+                guideText.textContent = GameState.controlScheme === 'SWIPE' ? '画面下部から上へスワイプで投擲！' : 'タップで横/縦レーザーを止めて投擲！';
+                guideDot.className = 'w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping flex-shrink-0';
+            }
 
             const supportsLeg = isLegModeSupported();
             const btnLeg = document.getElementById('btnLegRuleToggle');
@@ -3049,7 +3613,7 @@
                     document.getElementById('legScoreText').textContent = `${GameState.playerLegsWon} - ${GameState.cpuLegsWon}`;
                     playerLegPips.classList.remove('hidden');
                     renderLegPips('playerLegPips', GameState.playerLegsWon, needed, 'bg-cyan-400 shadow-[0_0_5px_#00f3ff]');
-                    if (GameState.cpuLevel > 0) {
+                    if (isCpuMatch()) {
                         cpuLegPips.classList.remove('hidden');
                         renderLegPips('cpuLegPips', GameState.cpuLegsWon, needed, 'bg-rose-400 shadow-[0_0_5px_#f43f5e]');
                     } else {
@@ -3069,57 +3633,16 @@
                 cpuLegPips.classList.add('hidden');
             }
 
-            const supportsCpu = (GameState.mode === '501' || GameState.mode === '701' || GameState.mode === 'CRICKET');
-            const btnCpu = document.getElementById('btnCpuToggle');
-            const cpuScoreContainer = document.getElementById('cpuScoreContainer');
-            const turnBadge = document.getElementById('turnBadge');
-            const guideText = document.getElementById('throwGuideText');
-            const guideDot = document.getElementById('guideDot');
-
-            if (supportsCpu) {
-                btnCpu.classList.remove('hidden');
-                const prof = CPU_PROFILES[GameState.cpuLevel] || CPU_PROFILES[0];
-                btnCpu.textContent = prof.short;
-                if (GameState.cpuLevel > 0) {
-                    cpuScoreContainer.classList.remove('hidden');
-                    turnBadge.classList.remove('hidden');
-                    document.getElementById('cpuScoreLabel').textContent = prof.short;
-                    document.getElementById('cpuScoreDisplay').textContent = GameState.mode === 'CRICKET' ? formatScore(GameState.cpuScore) : formatScore(GameState.cpuCheckoutRemaining);
-                    if (GameState.isCpuTurn) {
-                        turnBadge.textContent = 'CPU TURN';
-                        turnBadge.className = 'text-[8px] font-orbitron font-black px-1 py-0.2 rounded bg-rose-500/25 text-rose-300 border border-rose-400/60 animate-pulse whitespace-nowrap';
-                        guideText.textContent = `${prof.label} が投擲中...`;
-                        guideDot.className = 'w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping flex-shrink-0';
-                    } else {
-                        turnBadge.textContent = 'YOUR TURN';
-                        turnBadge.className = 'text-[8px] font-orbitron font-black px-1 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/50 whitespace-nowrap';
-                        guideText.textContent = GameState.controlScheme === 'SWIPE' ? '画面下部から上へスワイプで投擲！' : 'タップで横/縦レーザーを止めて投擲！';
-                        guideDot.className = 'w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping flex-shrink-0';
-                    }
-                } else {
-                    cpuScoreContainer.classList.add('hidden');
-                    turnBadge.classList.add('hidden');
-                    guideText.textContent = GameState.controlScheme === 'SWIPE' ? '画面下部から上へスワイプで投擲！' : 'タップで横/縦レーザーを止めて投擲！';
-                    guideDot.className = 'w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping flex-shrink-0';
-                }
-            } else {
-                btnCpu.classList.add('hidden');
-                cpuScoreContainer.classList.add('hidden');
-                turnBadge.classList.add('hidden');
-                guideText.textContent = GameState.controlScheme === 'SWIPE' ? '画面下部から上へスワイプで投擲！' : 'タップで横/縦レーザーを止めて投擲！';
-                guideDot.className = 'w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping flex-shrink-0';
-            }
-
-            if (GameState.mode === 'CRICKET') {
+            if (isCricketRules()) {
                 document.getElementById('cricketBoardHUD').classList.remove('hidden');
                 renderCricketBoardHUD();
             } else {
                 document.getElementById('cricketBoardHUD').classList.add('hidden');
             }
 
-            if (GameState.mode === '501' || GameState.mode === '701') {
+            if (isZeroOneRules()) {
                 document.getElementById('btnBullRuleToggle').classList.remove('hidden');
-                document.getElementById('btnBullRuleToggle').textContent = GameState.bullRule + ' BULL';
+                document.getElementById('btnBullRuleToggle').textContent = GameState.bullRule === 'FAT' ? 'FAT' : 'SEPARATE';
             } else {
                 document.getElementById('btnBullRuleToggle').classList.add('hidden');
             }
@@ -3145,30 +3668,64 @@
                 document.getElementById('hintTitle').textContent = 'RULE';
                 document.getElementById('hintContent').textContent = 'S-BULL / D-BULL ともに50点！';
                 document.getElementById('btnOutRuleToggle').classList.add('hidden');
-            } else if (GameState.mode === '501' || GameState.mode === '701') {
-                document.getElementById('hudModeTitle').textContent = `🎯 ${GameState.mode}`;
+            } else if (isZeroOneRules()) {
+                const activeTarget = getActive01StartScore();
+                const bossObj = BOSS_STAGES[Math.min(BOSS_STAGES.length - 1, GameState.bossStage - 1)];
+                document.getElementById('hudModeTitle').textContent =
+                    GameState.mode === 'BOSS' ? `👑 S${GameState.bossStage}: ${bossObj.name}` :
+                    isCpuMatch() ? `🤖 VS ${activeTarget}` : `🎯 ${activeTarget}`;
                 let ppr = GameState.totalDartsThrown > 0 ? (GameState.totalPointsEarned / GameState.totalDartsThrown) * 3 : 0;
                 let ratingInfo = calculateRating(ppr, GameState.mode, GameState.score);
-                document.getElementById('hudSubStatus').textContent = `FLIGHT: ${ratingInfo.fl}${secB}`;
-                document.getElementById('scoreLabel').textContent = GameState.cpuLevel > 0 ? 'YOU REM' : 'REMAINING';
+                document.getElementById('hudSubStatus').textContent =
+                    GameState.mode === 'BOSS' ? `BOSS [${bossObj.rank}]${secB}` : `FLIGHT: ${ratingInfo.fl}${secB}`;
+                document.getElementById('scoreLabel').textContent = isCpuMatch() ? 'YOU REM' : 'REMAINING';
                 document.getElementById('mainScoreDisplay').textContent = formatScore(GameState.checkoutRemaining);
                 document.getElementById('progressLabel').textContent = 'ROUND';
                 document.getElementById('progressDisplay').innerHTML = `${GameState.round}<span class="text-xs text-slate-400">/${GameState.maxRounds}</span>`;
                 document.getElementById('btnOutRuleToggle').classList.remove('hidden');
                 document.getElementById('btnOutRuleToggle').textContent = GameState.outRule;
-                document.getElementById('hintTitle').textContent = `${GameState.outRule}`;
+                document.getElementById('hintTitle').textContent = GameState.mode === 'BOSS' ? `STAGE ${GameState.bossStage}/5` : `${GameState.outRule}`;
                 document.getElementById('hintContent').textContent = getDynamicCheckoutHint(GameState.checkoutRemaining, GameState.outRule, GameState.checkoutStartScore);
-            } else if (GameState.mode === 'CRICKET') {
-                document.getElementById('hudModeTitle').textContent = '🛡️ CRICKET';
+            } else if (isCricketRules()) {
+                const bossObj = BOSS_STAGES[Math.min(BOSS_STAGES.length - 1, GameState.bossStage - 1)];
+                document.getElementById('hudModeTitle').textContent =
+                    GameState.mode === 'BOSS' ? `👑 S${GameState.bossStage}: ${bossObj.name}` :
+                    isCpuMatch() ? '🤖 VS CRICKET' : '🛡️ CRICKET';
                 let ratingInfo = calculateRating(0, GameState.mode, GameState.score);
-                document.getElementById('hudSubStatus').textContent = `FLIGHT: ${ratingInfo.fl}${secB}`;
-                document.getElementById('scoreLabel').textContent = GameState.cpuLevel > 0 ? 'YOU PTS' : 'SCORE';
+                document.getElementById('hudSubStatus').textContent =
+                    GameState.mode === 'BOSS' ? `BOSS [${bossObj.rank}]${secB}` : `FLIGHT: ${ratingInfo.fl}${secB}`;
+                document.getElementById('scoreLabel').textContent = isCpuMatch() ? 'YOU PTS' : 'SCORE';
                 document.getElementById('mainScoreDisplay').textContent = formatScore(GameState.score);
                 document.getElementById('progressLabel').textContent = 'ROUND';
                 document.getElementById('progressDisplay').innerHTML = `${GameState.round}<span class="text-xs text-slate-400">/${GameState.maxRounds}</span>`;
                 document.getElementById('btnOutRuleToggle').classList.add('hidden');
-                document.getElementById('hintTitle').textContent = 'CRICKET';
-                document.getElementById('hintContent').textContent = '20〜15とBULLを3マークでOPEN！相手が閉じる前に加点！';
+                document.getElementById('hintTitle').textContent = GameState.mode === 'BOSS' ? `STAGE ${GameState.bossStage}/5` : 'CRICKET';
+                document.getElementById('hintContent').textContent = isCpuMatch()
+                    ? '20〜15とBULLを3マークでOPEN！相手が閉じる前に加点！'
+                    : 'ソロCRICKET：全ターゲット(20〜15・BULL)の早期OPEN＆ハイスコアを目指そう！';
+            } else if (GameState.mode === 'PARTY') {
+                if (GameState.partyType === 'HALF_IT') {
+                    const spec = getCurrentHalfItSpec();
+                    document.getElementById('hudModeTitle').textContent = '💣 HALF-IT';
+                    document.getElementById('hudSubStatus').textContent = `TARGET: ${spec.label}${secB}`;
+                    document.getElementById('scoreLabel').textContent = 'SCORE';
+                    document.getElementById('mainScoreDisplay').textContent = formatScore(GameState.score);
+                    document.getElementById('progressLabel').textContent = 'ROUND';
+                    document.getElementById('progressDisplay').innerHTML = `${GameState.round}<span class="text-xs text-slate-400">/8</span>`;
+                    document.getElementById('btnOutRuleToggle').classList.add('hidden');
+                    document.getElementById('hintTitle').textContent = `TARGET: ${spec.label}`;
+                    document.getElementById('hintContent').textContent = spec.desc;
+                } else {
+                    document.getElementById('hudModeTitle').textContent = "🦅 EAGLE'S EYE";
+                    document.getElementById('hudSubStatus').textContent = `BULL ONLY${secB}`;
+                    document.getElementById('scoreLabel').textContent = 'SCORE';
+                    document.getElementById('mainScoreDisplay').textContent = formatScore(GameState.score);
+                    document.getElementById('progressLabel').textContent = 'ROUND';
+                    document.getElementById('progressDisplay').innerHTML = `${GameState.round}<span class="text-xs text-slate-400">/8</span>`;
+                    document.getElementById('btnOutRuleToggle').classList.add('hidden');
+                    document.getElementById('hintTitle').textContent = 'BULL ONLY';
+                    document.getElementById('hintContent').textContent = 'D-BULL 50点 / S-BULL 25点！ブル以外はすべて0点のストイック練習！';
+                }
             } else if (GameState.mode === 'CHECKOUT') {
                 document.getElementById('hudModeTitle').textContent = '⚡ ARRANGE DOJO';
                 document.getElementById('hudSubStatus').textContent = `${GameState.outRule} OUT${secB}`;
@@ -3203,21 +3760,69 @@
         // ==========================================
         function switchGameMode(m) {
             GameState.mode = m;
-            if (m === 'CRICKET' && GameState.cpuLevel === 0) {
-                GameState.cpuLevel = 2;
-            }
+            if (m === 'BOSS') GameState.bossStage = 1;
+            GameState.cpuLevel = getActiveCpuLevelForMode();
             SoundEngine.playModeChange();
             resetGame();
             resizeCanvas();
             requestAnimationFrame(resizeCanvas);
         }
 
+        function toggleZeroOneType() {
+            GameState.zeroOneType = GameState.zeroOneType === 501 ? 701 : 501;
+            SoundEngine.playModeChange();
+            showToast(`🎯 01ゲーム: ${GameState.zeroOneType} に切替`);
+            resetGame();
+            resizeCanvas();
+        }
+
+        function toggleCpuGameType() {
+            const rules = ['501', '701', 'CRICKET'];
+            GameState.cpuGameType = rules[(rules.indexOf(GameState.cpuGameType) + 1) % rules.length];
+            SoundEngine.playModeChange();
+            showToast(`🤖 VS CPU種目: ${GameState.cpuGameType} に切替`);
+            resetGame();
+            resizeCanvas();
+        }
+
+        function toggleBossGameType() {
+            const rules = ['501', '301', 'CRICKET'];
+            GameState.bossGameType = rules[(rules.indexOf(GameState.bossGameType) + 1) % rules.length];
+            GameState.bossStage = 1;
+            SoundEngine.playModeChange();
+            showToast(`👑 BOSSサバイバル種目: ${GameState.bossGameType} に切替`);
+            resetGame();
+            resizeCanvas();
+        }
+
+        function togglePartyType() {
+            GameState.partyType = GameState.partyType === 'HALF_IT' ? 'EAGLES_EYE' : 'HALF_IT';
+            SoundEngine.playModeChange();
+            showToast(GameState.partyType === 'HALF_IT' ? '💣 PARTY: HALF-IT (スコア半減サバイバル)' : "🦅 PARTY: EAGLE'S EYE (ストイックBULL)");
+            resetGame();
+            resizeCanvas();
+        }
+
+        function toggleVoice() {
+            VoiceAnnouncer.enabled = !VoiceAnnouncer.enabled;
+            const icon = document.getElementById('voiceIcon');
+            const btn = document.getElementById('btnVoice');
+            if (VoiceAnnouncer.enabled) {
+                icon.className = 'fa-solid fa-microphone-lines text-emerald-400';
+                btn.className = 'flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-slate-800 border border-emerald-500/40 text-emerald-300 text-[9px] font-orbitron font-bold active:scale-95 transition-transform';
+                VoiceAnnouncer.speak("Voice Announcer On!", true);
+                showToast('🗣️ 英語ボイスアナウンサー ON');
+            } else {
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                icon.className = 'fa-solid fa-microphone-lines-slash text-slate-500';
+                btn.className = 'flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-500 text-[9px] font-orbitron font-bold active:scale-95 transition-transform';
+                showToast('🔇 英語ボイスアナウンサー OFF');
+            }
+        }
+
         function toggleLegFormat() {
             const idx = LEG_FORMATS.indexOf(GameState.legFormat);
             GameState.legFormat = LEG_FORMATS[(idx + 1) % LEG_FORMATS.length];
-            if (GameState.legFormat > 1 && GameState.cpuLevel === 0) {
-                GameState.cpuLevel = 2;
-            }
             SoundEngine.playModeChange();
             const needed = getLegsNeededToWin();
             showToast(GameState.legFormat === 1 ? '単発 1 LEG モード' : `🔥 ${GameState.legFormat} LEG マッチ（${needed}本先取）`);
@@ -3226,8 +3831,11 @@
         }
 
         function toggleCpuLevel() {
-            GameState.cpuLevel = (GameState.cpuLevel + 1) % CPU_PROFILES.length;
+            GameState.cpuBattleLevel = (GameState.cpuBattleLevel % 4) + 1;
+            GameState.cpuLevel = getActiveCpuLevelForMode();
             SoundEngine.playModeChange();
+            const prof = CPU_PROFILES[GameState.cpuBattleLevel];
+            showToast(`🤖 対戦相手: ${prof.label}`);
             resetGame();
             resizeCanvas();
         }
@@ -3249,7 +3857,6 @@
             const unlockedIndices = SoundEngine.getUnlockedTrackIndices();
 
             if (SoundEngine.bgmMuted) {
-                // OFF -> 最初の解放済みBGM (BGM1)
                 SoundEngine.bgmMuted = false;
                 SoundEngine.trackIndex = unlockedIndices[0];
                 SoundEngine.currentStep = 0;
@@ -3261,7 +3868,6 @@
             } else {
                 const posInUnlocked = unlockedIndices.indexOf(SoundEngine.trackIndex);
                 if (posInUnlocked !== -1 && posInUnlocked < unlockedIndices.length - 1) {
-                    // 次の解放済みBGMへ切替
                     SoundEngine.trackIndex = unlockedIndices[posInUnlocked + 1];
                     SoundEngine.currentStep = 0;
                     PersistentStats.selectedBgmIndex = SoundEngine.trackIndex;
@@ -3270,7 +3876,6 @@
                     const tr = SoundEngine.tracks[SoundEngine.trackIndex];
                     showToast(`♪ ${tr.shortLabel}: ${tr.name}`);
                 } else {
-                    // 最後の解放済みBGMの次は OFF
                     SoundEngine.bgmMuted = true;
                     SoundEngine.stopBGM();
                     const nextLocked = SoundEngine.tracks.find(t => !SoundEngine.isTrackUnlocked(SoundEngine.tracks.indexOf(t)));
@@ -3333,6 +3938,10 @@
 
         function resetGame() {
             clearAllRoundTimers();
+            if (GameState.mode === 'BOSS' && GameState.isGameOver) {
+                GameState.bossStage = 1;
+            }
+            GameState.cpuLevel = getActiveCpuLevelForMode();
             GameState.isCpuTurn = false;
             GameState.isRoundTransitioning = false;
             GameState.matchWinner = null;
@@ -3341,8 +3950,9 @@
             GameState.playerLegsWon = 0;
             GameState.cpuLegsWon = 0;
             GameState.legDartsThrown = 0;
+            GameState.halfItRoundTargetHits = 0;
 
-            GameState.score = 0;
+            GameState.score = (GameState.mode === 'PARTY' && GameState.partyType === 'HALF_IT') ? 40 : 0;
             GameState.cpuScore = 0;
             GameState.round = 1;
             GameState.dartIndex = 0;
@@ -3381,17 +3991,13 @@
 
             if (GameState.mode === 'CHECKOUT') {
                 loadNextCheckoutPuzzle();
-            } else if (GameState.mode === '501') {
-                GameState.checkoutStartScore = GameState.checkoutRemaining = 501;
-                GameState.cpuCheckoutStartScore = GameState.cpuCheckoutRemaining = 501;
+            } else if (isZeroOneRules()) {
+                const startPts = getActive01StartScore();
+                GameState.checkoutStartScore = GameState.checkoutRemaining = startPts;
+                GameState.cpuCheckoutStartScore = GameState.cpuCheckoutRemaining = startPts;
                 GameState.maxRounds = 15;
                 updateHUD();
-            } else if (GameState.mode === '701') {
-                GameState.checkoutStartScore = GameState.checkoutRemaining = 701;
-                GameState.cpuCheckoutStartScore = GameState.cpuCheckoutRemaining = 701;
-                GameState.maxRounds = 15;
-                updateHUD();
-            } else if (GameState.mode === 'CRICKET') {
+            } else if (isCricketRules()) {
                 GameState.maxRounds = 15;
                 updateHUD();
             } else {
@@ -3406,17 +4012,14 @@
             GameState.isRoundTransitioning = false;
             GameState.timerActive = false;
 
-            if (isLegModeSupported() && GameState.legFormat > 1 && GameState.matchWinner === 'PLAYER') {
-                PersistentStats.matchWins++;
-            }
-
-            // VS CPU対戦での勝利カウント（BGM 5勝・10勝解放判定）
             if (isLegModeSupported() && GameState.cpuLevel > 0 && GameState.matchWinner === 'PLAYER') {
                 PersistentStats.recordCpuWin();
             }
 
             if (GameState.mode === 'BULL_RUSH' && GameState.score > PersistentStats.highBullRush) PersistentStats.highBullRush = GameState.score;
             if (GameState.mode === 'COUNT_UP' && GameState.score > PersistentStats.highCountUp) PersistentStats.highCountUp = GameState.score;
+            if (GameState.mode === 'PARTY' && GameState.partyType === 'HALF_IT' && GameState.score > PersistentStats.highHalfIt) PersistentStats.highHalfIt = GameState.score;
+            if (GameState.mode === 'PARTY' && GameState.partyType === 'EAGLES_EYE' && GameState.score > PersistentStats.highEaglesEye) PersistentStats.highEaglesEye = GameState.score;
             PersistentStats.save();
             SoundEngine.playAward();
             showResultModal();
@@ -3445,8 +4048,22 @@
 
             const isMultiLeg = isLegModeSupported() && GameState.legFormat > 1;
 
-            if (isMultiLeg && GameState.matchWinner) {
-                const oppLabel = GameState.cpuLevel > 0 ? CPU_PROFILES[GameState.cpuLevel].short : 'TARGET';
+            if (GameState.mode === 'BOSS') {
+                if (GameState.matchWinner === 'PLAYER') {
+                    titleStr = 'SURVIVAL CHAMPION (全5BOSS制覇)';
+                    titleClass = 'text-xs font-bold mt-1 text-amber-300';
+                } else {
+                    titleStr = `BOSS STAGE ${GameState.bossStage} 敗退`;
+                    titleClass = 'text-xs font-bold mt-1 text-rose-400';
+                }
+            } else if (GameState.mode === 'PARTY') {
+                if (GameState.partyType === 'HALF_IT') {
+                    titleStr = GameState.score >= 400 ? 'ハーフイット覇者' : GameState.score >= 200 ? 'スリルハンター' : 'サバイバー';
+                } else {
+                    titleStr = GameState.score >= 600 ? '鷹の眼 (HAWKEYE)' : GameState.score >= 350 ? 'ブルスナイパー' : 'ストイック射手';
+                }
+            } else if (isMultiLeg && GameState.matchWinner) {
+                const oppLabel = GameState.cpuLevel > 0 ? getActiveCpuProfile().short : 'TARGET';
                 if (GameState.matchWinner === 'PLAYER') {
                     titleStr = `${GameState.legFormat}LEG制覇 (${GameState.playerLegsWon}-${GameState.cpuLegsWon})`;
                     titleClass = 'text-xs font-bold mt-1 text-emerald-400';
@@ -3457,7 +4074,7 @@
                     titleStr = `引き分け (${GameState.playerLegsWon}-${GameState.cpuLegsWon})`;
                 }
             } else if (GameState.cpuLevel > 0 && GameState.matchWinner) {
-                const prof = CPU_PROFILES[GameState.cpuLevel];
+                const prof = getActiveCpuProfile();
                 if (GameState.matchWinner === 'PLAYER') {
                     titleStr = `${prof.short} 撃破！`;
                     titleClass = 'text-xs font-bold mt-1 text-emerald-400';
@@ -3482,9 +4099,11 @@
             const modeBadgeMap = {
                 BULL_RUSH: '60s RUSH',
                 COUNT_UP: 'COUNT-UP (8R)',
-                '501': (GameState.cpuLevel > 0 ? `501 VS ${CPU_PROFILES[GameState.cpuLevel].short}` : '501 (15R)') + legSuffix,
-                '701': (GameState.cpuLevel > 0 ? `701 VS ${CPU_PROFILES[GameState.cpuLevel].short}` : '701 (15R)') + legSuffix,
-                CRICKET: (GameState.cpuLevel > 0 ? `CRICKET VS ${CPU_PROFILES[GameState.cpuLevel].short}` : 'CRICKET (SOLO)') + legSuffix,
+                '01': `${GameState.zeroOneType} (SOLO 15R)` + legSuffix,
+                CRICKET: 'CRICKET (SOLO)' + legSuffix,
+                VS_CPU: `VS ${CPU_PROFILES[GameState.cpuBattleLevel].short} [${GameState.cpuGameType}]` + legSuffix,
+                BOSS: `BOSS SURVIVAL [STAGE ${GameState.bossStage}/5]`,
+                PARTY: GameState.partyType === 'HALF_IT' ? 'PARTY // HALF-IT (8R)' : "PARTY // EAGLE'S EYE (8R)",
                 CHECKOUT: 'ARRANGE DOJO (01)'
             };
             document.getElementById('resultModeBadge').textContent = modeBadgeMap[GameState.mode] || 'RESULT';
@@ -3496,7 +4115,7 @@
                 document.getElementById('resExtraLeftLabel').textContent = '総投擲ダーツ数';
                 document.getElementById('resDartsThrown').textContent = GameState.totalDartsThrown + '本';
                 document.getElementById('resClearTimeContainer').classList.remove('hidden');
-                if (GameState.mode === 'CRICKET') {
+                if (isCricketRules()) {
                     document.getElementById('resExtraRightLabel').textContent = 'MPR (1R平均)';
                     const mpr = GameState.totalDartsThrown > 0 ? ((GameState.cricketTotalMarks / GameState.totalDartsThrown) * 3).toFixed(2) : '0.00';
                     document.getElementById('resClearTime').textContent = mpr;
@@ -3504,7 +4123,7 @@
                     document.getElementById('resExtraRightLabel').textContent = 'PPD / PPR';
                     document.getElementById('resClearTime').textContent = ppr.toFixed(1);
                 }
-            } else if (GameState.mode === '501' || GameState.mode === '701' || GameState.mode === 'CHECKOUT') {
+            } else if (isZeroOneRules() || GameState.mode === 'CHECKOUT') {
                 document.getElementById('resExtraInfo').classList.remove('hidden');
                 document.getElementById('resExtraLeftLabel').textContent = '投擲ダーツ数';
                 document.getElementById('resDartsThrown').textContent = GameState.totalDartsThrown + '本';
@@ -3520,8 +4139,8 @@
                     document.getElementById('resClearTimeContainer').classList.add('hidden');
                 }
                 document.getElementById('resScoreLabel').textContent = GameState.mode === 'CHECKOUT' ? 'TOTAL SCORE' : 'REMAINING';
-                document.getElementById('resScore').textContent = (GameState.mode === '501' || GameState.mode === '701') ? formatScore(GameState.checkoutRemaining) : formatScore(GameState.score);
-            } else if (GameState.mode === 'CRICKET' && GameState.cpuLevel > 0) {
+                document.getElementById('resScore').textContent = isZeroOneRules() ? formatScore(GameState.checkoutRemaining) : formatScore(GameState.score);
+            } else if (isCricketRules() && GameState.cpuLevel > 0) {
                 document.getElementById('resExtraInfo').classList.remove('hidden');
                 document.getElementById('resExtraLeftLabel').textContent = 'MPR (1R平均マーク)';
                 const mpr = GameState.totalDartsThrown > 0 ? ((GameState.cricketTotalMarks / GameState.totalDartsThrown) * 3).toFixed(2) : '0.00';
@@ -3581,7 +4200,7 @@
         function closeResultModal() { document.getElementById('resultModal').classList.add('hidden'); }
 
         // ==========================================
-        // DARTS PASS: BGMサウンドトラック＆着せ替えスキン選択UI
+        // DARTS PASS: カスタムフライト・BGM・着せ替えスキン選択UI
         // ==========================================
         function renderBgmSelector() {
             const list = document.getElementById('bgmSelectorList');
@@ -3666,6 +4285,67 @@
             }).join('');
         }
 
+        function renderTrailSelector() {
+            const grid = document.getElementById('trailSelectorGrid');
+            if (!grid) return;
+            const totalAw = PersistentStats.totalAwards || 0;
+            grid.innerHTML = Object.values(DART_TRAILS).map(trail => {
+                const isUnlocked = totalAw >= trail.requiredAwards || PersistentStats.unlockedTrails.includes(trail.id);
+                const isSelected = PersistentStats.selectedTrail === trail.id && isUnlocked;
+                const rem = Math.max(0, trail.requiredAwards - totalAw);
+                const pct = trail.requiredAwards > 0 ? Math.min(100, Math.round((totalAw / trail.requiredAwards) * 100)) : 100;
+
+                if (!isUnlocked) {
+                    return `
+                        <button onclick="selectDartTrail('${trail.id}')" class="text-left p-2 rounded-xl border border-slate-800/90 bg-slate-950/75 relative overflow-hidden active:scale-95 transition-transform">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="flex gap-1 opacity-45">
+                                    ${trail.trailColors.slice(0, 3).map(col => `<span class="w-2.5 h-2.5 rounded-full border border-white/20" style="background:${col}"></span>`).join('')}
+                                </div>
+                                <span class="text-[8px] font-orbitron font-bold text-slate-400"><i class="fa-solid fa-lock text-amber-500 mr-0.5"></i>${trail.requiredAwards} AW</span>
+                            </div>
+                            <div class="font-orbitron font-bold text-[10px] text-slate-300 truncate">${trail.name}</div>
+                            <div class="text-[8px] text-amber-400 font-bold truncate mt-0.5">あとアワード ${rem} 回で解放</div>
+                            <div class="w-full h-1 bg-slate-800 rounded-full mt-1 overflow-hidden">
+                                <div class="h-full bg-amber-500 rounded-full" style="width:${pct}%"></div>
+                            </div>
+                        </button>
+                    `;
+                }
+
+                return `
+                    <button onclick="selectDartTrail('${trail.id}')" class="text-left p-2 rounded-xl border transition-all active:scale-95 ${isSelected ? 'bg-amber-950/60 border-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.25)]' : 'bg-slate-950 border-slate-800 hover:border-slate-600'}">
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="flex gap-1">
+                                ${trail.trailColors.slice(0, 3).map(col => `<span class="w-2.5 h-2.5 rounded-full border border-white/20" style="background:${col}"></span>`).join('')}
+                            </div>
+                            ${isSelected ? '<span class="text-[8px] font-orbitron font-bold text-amber-300">EQUIPPED</span>' : '<span class="text-[8px] text-emerald-400 font-bold">UNLOCKED</span>'}
+                        </div>
+                        <div class="font-orbitron font-bold text-[10px] text-white truncate">${trail.name}</div>
+                        <div class="text-[8px] text-slate-400 truncate">${trail.desc}</div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectDartTrail(trailId) {
+            const trail = DART_TRAILS[trailId];
+            if (!trail) return;
+            const totalAw = PersistentStats.totalAwards || 0;
+            const isUnlocked = totalAw >= trail.requiredAwards || PersistentStats.unlockedTrails.includes(trail.id);
+            if (!isUnlocked) {
+                const rem = Math.max(0, trail.requiredAwards - totalAw);
+                SoundEngine.playOutBoard();
+                showToast(`🔒 あとアワード ${rem} 回獲得（累計${trail.requiredAwards}回）で解放！`);
+                return;
+            }
+            PersistentStats.selectedTrail = trailId;
+            PersistentStats.save();
+            SoundEngine.playModeChange();
+            renderTrailSelector();
+            showToast(`✈️ フライト装備: ${trail.name}`);
+        }
+
         function selectBoardSkin(skinId) {
             const skin = BOARD_SKINS[skinId];
             if (!skin) return;
@@ -3690,10 +4370,12 @@
             document.getElementById('statHighBullRush').textContent = formatScore(PersistentStats.highBullRush);
             document.getElementById('statHighCountUp').textContent = formatScore(PersistentStats.highCountUp);
             document.getElementById('statCpuWins').textContent = (PersistentStats.cpuWins || 0) + '勝';
-            document.getElementById('statMatchWins').textContent = (PersistentStats.matchWins || 0) + '勝';
-            document.getElementById('statCricketWins').textContent = PersistentStats.cricketWins + '勝';
+            document.getElementById('statBossBest').textContent = `STAGE ${PersistentStats.bossBestStage || 1}`;
+            document.getElementById('statHighHalfIt').textContent = formatScore(PersistentStats.highHalfIt || 0);
+            document.getElementById('statHighEaglesEye').textContent = formatScore(PersistentStats.highEaglesEye || 0);
             document.getElementById('statCheckoutClears').textContent = PersistentStats.checkoutClears + '回';
-            document.getElementById('statTotalBulls').textContent = PersistentStats.totalBulls + '回';
+            document.getElementById('statTotalBulls').textContent = `${PersistentStats.totalBulls}回 / ${PersistentStats.totalAwards || 0}回`;
+            renderTrailSelector();
             renderBgmSelector();
             renderSkinSelector();
             document.getElementById('statsModal').classList.remove('hidden');
@@ -3708,9 +4390,11 @@
             const modeMap = {
                 BULL_RUSH: isCopy ? '60s BULL RUSH' : '60s RUSH',
                 COUNT_UP: 'COUNT-UP (8R)',
-                '501': (GameState.cpuLevel > 0 ? `501 VS ${CPU_PROFILES[GameState.cpuLevel].short}` : '501 (15R)') + legTag,
-                '701': (GameState.cpuLevel > 0 ? `701 VS ${CPU_PROFILES[GameState.cpuLevel].short}` : '701 (15R)') + legTag,
-                CRICKET: (GameState.cpuLevel > 0 ? `CRICKET VS ${CPU_PROFILES[GameState.cpuLevel].short}` : 'CRICKET (SOLO)') + legTag,
+                '01': `${GameState.zeroOneType} (SOLO 15R)` + legTag,
+                CRICKET: 'CRICKET (SOLO)' + legTag,
+                VS_CPU: `VS ${CPU_PROFILES[GameState.cpuBattleLevel].short} [${GameState.cpuGameType}]` + legTag,
+                BOSS: `BOSS SURVIVAL [STAGE ${GameState.bossStage}/5]`,
+                PARTY: GameState.partyType === 'HALF_IT' ? 'HALF-IT (8R)' : "EAGLE'S EYE (8R)",
                 CHECKOUT: 'ARRANGE DOJO (01)'
             };
             let modeName = modeMap[GameState.mode] || GameState.mode;
@@ -3719,7 +4403,7 @@
             if (isMultiLeg) {
                 scoreStr = `LEG ${GameState.playerLegsWon} - ${GameState.cpuLegsWon}`;
                 extraStr = `\n🎯総投擲: ${GameState.totalDartsThrown}ダーツ`;
-            } else if (GameState.mode === '501' || GameState.mode === '701') {
+            } else if (isZeroOneRules()) {
                 scoreStr = GameState.checkoutRemaining === 0 ? "CLEAR!" : `残り ${formatScore(GameState.checkoutRemaining)} pts`;
                 if (GameState.checkoutRemaining === 0) extraStr = `\n🎯クリア: ${GameState.totalDartsThrown}ダーツ`;
             } else if (GameState.mode === 'CHECKOUT') {
@@ -3749,7 +4433,21 @@
             showToast('コピーしました！');
         }
 
+        function bindSplashEvents() {
+            const splash = document.getElementById('startScreen');
+            const startBtn = document.getElementById('btnTapToStart');
+            if (splash) {
+                splash.addEventListener('click', startGameFromSplash);
+                splash.addEventListener('touchend', startGameFromSplash, { passive: false });
+            }
+            if (startBtn) {
+                startBtn.addEventListener('click', startGameFromSplash);
+                startBtn.addEventListener('touchend', startGameFromSplash, { passive: false });
+            }
+        }
+
         function initApp() {
+            bindSplashEvents();
             PersistentStats.load();
             updateBgmButtonUI();
             const boardContainer = document.getElementById('boardContainer');
@@ -3763,7 +4461,10 @@
             requestAnimationFrame(gameLoop);
         }
 
-        window.addEventListener('DOMContentLoaded', resizeCanvas);
+        window.addEventListener('DOMContentLoaded', () => {
+            bindSplashEvents();
+            resizeCanvas();
+        });
         window.onload = initApp;
     </script>
 </body>
